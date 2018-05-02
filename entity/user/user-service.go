@@ -1,8 +1,8 @@
 package user
 
 import (
-	"github.com/bilibiliChangKai/Agenda-CS/service/entity/mylog"
-	"github.com/bilibiliChangKai/Agenda-CS/service/orm"
+	"github.com/book-library-seat-system/go-server/entity/mylog"
+	"github.com/book-library-seat-system/go-server/orm"
 )
 
 // ItemAtomicService 一个空类型
@@ -18,7 +18,7 @@ func init() {
 
 // Save 保存
 func (*ItemAtomicService) Save(u *Item) error {
-	_, err := orm.Mydb.Table("item").Insert(u)
+	_, err := orm.Mydb.Table("user").Insert(u)
 	checkErr(err)
 	return err
 }
@@ -26,27 +26,27 @@ func (*ItemAtomicService) Save(u *Item) error {
 // FindAll 找到所有Item
 func (*ItemAtomicService) FindAll() []Item {
 	as := []Item{}
-	err := orm.Mydb.Table("item").Desc("Name").Find(&as)
+	err := orm.Mydb.Table("user").Desc("ID").Find(&as)
 	checkErr(err)
 	return as
 }
 
-// FindByName 通过主键Name查询数据
-func (*ItemAtomicService) FindByName(name string) *Item {
+// FindByName 通过主键ID查询数据
+func (*ItemAtomicService) FindByID(ID string) *Item {
 	a := &Item{}
-	_, err := orm.Mydb.Table("item").Id(name).Get(a)
+	_, err := orm.Mydb.Table("user").Id(ID).Get(a)
 	checkErr(err)
 	return a
 }
 
-// DeleteByName 通过主键Name删除数据
-func (*ItemAtomicService) DeleteByName(name string) {
+// DeleteByName 通过主键ID删除数据
+func (*ItemAtomicService) DeleteByID(ID string) {
 	// 软删除
-	_, err := orm.Mydb.Table("item").Id(name).Delete(&Item{})
+	_, err := orm.Mydb.Table("user").Id(ID).Delete(&Item{})
 	checkErr(err)
 
 	// 真正删除
-	_, err = orm.Mydb.Table("item").Id(name).Unscoped().Delete(&Item{})
+	_, err = orm.Mydb.Table("user").Id(ID).Unscoped().Delete(&Item{})
 	checkErr(err)
 }
 

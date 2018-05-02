@@ -1,4 +1,4 @@
-package meeting
+package seat
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bilibiliChangKai/Agenda-CS/service/entity/user"
+	"github.com/book-library-seat-system/go-server/entity/user"
 )
 
 //MeetingInfoAtomicService .

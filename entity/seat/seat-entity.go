@@ -1,4 +1,4 @@
-package meeting
+package seat
 
 import "time"
 
@@ -11,7 +11,7 @@ type Meeting struct {
 	//会议参与者
 	Participator string `xorm:"varchar(255) 'participators'"`
 	//开始时间
-	StartTime time.Time `xorm:"'startTime'"`
+	StartTime time.Time `xorm:"'startime'"`
 	//结束时间
 	EndTime time.Time `xorm:"'endTime'"`
 }
