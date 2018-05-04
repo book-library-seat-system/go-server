@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/book-library-seat-system/go-server/entity/mylog"
 	. "github.com/book-library-seat-system/go-server/util"
 	"github.com/go-xorm/xorm"
 	// 使用sqlite3数据库
@@ -19,8 +18,8 @@ func init() {
 	// 链接sqlite3数据库
 	//db, err := xorm.NewEngine("sqlite3", "./agenda-cs.db")
 	databasePath := "src/github.com/book-library-seat-system/go-server/agenda-cs.db"
-	fmt.Println(databasePath)
-	databasePath = filepath.Join(*mylog.GetGOPATH(), databasePath)
+	databasePath = filepath.Join(*GetGOPATH(), databasePath)
+	fmt.Println("Your database:", databasePath)
 	db, err := xorm.NewEngine("sqlite3", databasePath)
 	CheckErr(err)
 

@@ -3,12 +3,12 @@ package main
 import (
 	"os"
 
-	"github.com/bilibiliChangKai/Agenda-CS/service/server"
+	"github.com/book-library-seat-system/go-server/server"
 	flag "github.com/spf13/pflag"
 )
 
 const (
-	PORT string = "8080"
+	PORT string = "8888"
 )
 
 func main() {

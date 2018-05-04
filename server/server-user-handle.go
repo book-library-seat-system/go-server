@@ -8,10 +8,9 @@ import (
 	"net/http"
 
 	"github.com/bitly/go-simplejson"
+	"github.com/book-library-seat-system/go-server/entity/user"
+	. "github.com/book-library-seat-system/go-server/util"
 	"github.com/unrolled/render"
-
-	"github.com/bilibiliChangKai/Agenda-CS/service/entity/user"
-	"github.com/bilibiliChangKai/Agenda-CS/service/orm"
 )
 
 // 用于返回的模板Json
@@ -42,11 +41,11 @@ func stdResj(err interface{}) resj {
 func praseJSON(r *http.Request) *simplejson.Json {
 	// 解析json
 	body, err := ioutil.ReadAll(r.Body)
-	orm.CheckErr(err)
+	CheckErr(err)
 	defer r.Body.Close()
 
 	temp, err := simplejson.NewJson(body)
-	orm.CheckErr(err)
+	CheckErr(err)
 	return temp
 }
 
@@ -69,102 +68,95 @@ func errResponse(w http.ResponseWriter, formatter *render.Render) {
 // test
 func test(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		resjson := resj{}
-		resjson.Users = append(resjson.Users, user.Item{"1", "2", "3", "4"})
-		resjson.Name = "123"
-		resjson.Email = "321"
-		resjson.PhoneNumber = "456"
-		resjson.Information = "trytry"
-		formatter.JSON(w, http.StatusOK, resjson)
 	}
 }
 
 // 创建一个新的用户
-func createUserHandle(formatter *render.Render) http.HandlerFunc {
+func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		defer errResponse(w, formatter)
+		// defer errResponse(w, formatter)
 
-		js := praseJSON(r)
-		user.RegisterUser(
-			js.Get("Name").MustString(),
-			js.Get("Password").MustString(),
-			js.Get("Email").MustString(),
-			js.Get("Phone").MustString())
+		// js := praseJSON(r)
+		// user.RegisterUser(
+		// 	js.Get("Name").MustString(),
+		// 	js.Get("Password").MustString(),
+		// 	js.Get("Email").MustString(),
+		// 	js.Get("Phone").MustString())
 
-		formatter.JSON(w, http.StatusOK, stdResj(nil))
+		// formatter.JSON(w, http.StatusOK, stdResj(nil))
 	}
 }
 
 // 登录用户
-func loginUserHandle(formatter *render.Render) http.HandlerFunc {
+func loginStudentHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		defer errResponse(w, formatter)
+		// defer errResponse(w, formatter)
 
-		// 使用user函数
-		js := praseJSON(r)
-		loginname := praseCookie(r)
-		pitem := user.LoginUser(
-			js.Get("Name").MustString(),
-			js.Get("Password").MustString(),
-			loginname)
+		// // 使用user函数
+		// js := praseJSON(r)
+		// loginname := praseCookie(r)
+		// pitem := user.LoginUser(
+		// 	js.Get("Name").MustString(),
+		// 	js.Get("Password").MustString(),
+		// 	loginname)
 
-		// 如果成功登录，设置cookie
-		cookie := http.Cookie{
-			Name:   "username",
-			Value:  pitem.Name,
-			Path:   "/",
-			MaxAge: 1200}
-		http.SetCookie(w, &cookie)
+		// // 如果成功登录，设置cookie
+		// cookie := http.Cookie{
+		// 	Name:   "username",
+		// 	Value:  pitem.Name,
+		// 	Path:   "/",
+		// 	MaxAge: 1200}
+		// http.SetCookie(w, &cookie)
 
-		resjson := stdResj(nil)
-		resjson.Item = *pitem
-		formatter.JSON(w, http.StatusOK, resjson)
+		// resjson := stdResj(nil)
+		// resjson.Item = *pitem
+		// formatter.JSON(w, http.StatusOK, resjson)
 	}
 }
 
 // 登出用户
-func logoutUserHandle(formatter *render.Render) http.HandlerFunc {
+func logoutStudentHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		defer errResponse(w, formatter)
+		// defer errResponse(w, formatter)
 
-		loginname := praseCookie(r)
-		user.LogoutUser(loginname)
+		// loginname := praseCookie(r)
+		// user.LogoutUser(loginname)
 
-		formatter.JSON(w, http.StatusOK, stdResj(nil))
+		// formatter.JSON(w, http.StatusOK, stdResj(nil))
 	}
 }
 
 // 显示所有用户
-func listUsersHandle(formatter *render.Render) http.HandlerFunc {
+func listStudentInfoHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		defer errResponse(w, formatter)
+		// defer errResponse(w, formatter)
 
-		loginname := praseCookie(r)
-		items := user.ListUsers(loginname)
+		// loginname := praseCookie(r)
+		// items := user.ListUsers(loginname)
 
-		resjson := stdResj(nil)
-		resjson.Users = items
-		formatter.JSON(w, http.StatusOK, resjson)
+		// resjson := stdResj(nil)
+		// resjson.Users = items
+		// formatter.JSON(w, http.StatusOK, resjson)
 	}
 }
 
-// 删除已登录用户
-func deleteUserHandle(formatter *render.Render) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		defer errResponse(w, formatter)
+// // 删除已登录用户
+// func deleteUserHandle(formatter *render.Render) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		defer errResponse(w, formatter)
 
-		loginname := praseCookie(r)
-		user.DeleteUser(loginname)
+// 		loginname := praseCookie(r)
+// 		user.DeleteUser(loginname)
 
-		// 如果成功删除，设置cookie
-		cookie := http.Cookie{
-			Name:   "username",
-			Path:   "/",
-			MaxAge: -1}
-		http.SetCookie(w, &cookie)
-		formatter.JSON(w, http.StatusOK, stdResj(nil))
-	}
-}
+// 		// 如果成功删除，设置cookie
+// 		cookie := http.Cookie{
+// 			Name:   "username",
+// 			Path:   "/",
+// 			MaxAge: -1}
+// 		http.SetCookie(w, &cookie)
+// 		formatter.JSON(w, http.StatusOK, stdResj(nil))
+// 	}
+// }
 
 // func undefinedHandler(formatter *render.Render) http.HandlerFunc {
 //

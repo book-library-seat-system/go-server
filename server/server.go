@@ -26,41 +26,33 @@ func NewServer() *negroni.Negroni {
 // 初始化路由，分别初始化User部分和Meeting部分
 func initRoutes(mx *mux.Router, formatter *render.Render) {
 	initUserRoutes(mx, formatter)
-	initMeetingRoute(mx, formatter)
+	initSeatRoute(mx, formatter)
 }
 
 // 用户部分
 func initUserRoutes(mx *mux.Router, formatter *render.Render) {
 	// 测试url
-	mx.HandleFunc("/v1/test", test(formatter)).Methods("GET")
+	mx.HandleFunc("/test", test(formatter)).Methods("GET")
 	// 创建用户
-	mx.HandleFunc("/v1/users", createUserHandle(formatter)).Methods("POST")
+	mx.HandleFunc("/v1/users", createStudentHandle(formatter)).Methods("POST")
 	// 登录用户
-	mx.HandleFunc("/v1/user/login", loginUserHandle(formatter)).Methods("POST")
+	mx.HandleFunc("/v1/user/login", loginStudentHandle(formatter)).Methods("POST")
 	// 登出用户
-	mx.HandleFunc("/v1/user/logout", logoutUserHandle(formatter)).Methods("GET")
-	// 显示所有用户
-	mx.HandleFunc("/v1/users", listUsersHandle(formatter)).Methods("GET")
-	// 删除用户
-	mx.HandleFunc("/v1/users", deleteUserHandle(formatter)).Methods("DELETE")
+	mx.HandleFunc("/v1/user/logout", logoutStudentHandle(formatter)).Methods("GET")
+	// 显示用户信息
+	mx.HandleFunc("/v1/users", listStudentInfoHandle(formatter)).Methods("GET")
 }
 
 //会议逻辑，路由设置
-func initMeetingRoute(mx *mux.Router, formatter *render.Render) {
-	//创建会议
-	mx.HandleFunc("/v1/meetings", createMeetingHandler(formatter)).Methods("POST")
-	//增加会议参与者
-	mx.HandleFunc("/v1/meeting/{title}/adding-participators", addParticipatorsHandler(formatter)).Methods("PATCH")
-	//删除会议参与者
-	mx.HandleFunc("/v1/meeting/{title}/deleting-participators", deleteParticipatorsHandler(formatter)).Methods("PATCH")
-	//查询会议
-	mx.HandleFunc("/v1/users/query-meeting", queryMeetingsHandler(formatter)).Methods("GET")
-	//取消会议
-	mx.HandleFunc("/v1/users/cancel-a-meeting/{title}", cancelMeetingHandler(formatter)).Methods("DELETE")
-	//退出会议
-	mx.HandleFunc("/v1/users/quit-meeting/{title}", quitMeetingHandler(formatter)).Methods("PATCH")
-	//清空会议
-	mx.HandleFunc("/v1/users/cancel-all-meeting", clearAllMeetingsHandler(formatter)).Methods("DELETE")
+func initSeatRoute(mx *mux.Router, formatter *render.Render) {
+	// 查看时间段
+	mx.HandleFunc("/v1/timeintervals", showTimeIntervalInfoHandle(formatter)).Methods("GET")
+	// 查看座位信息
+	mx.HandleFunc("/v1/seats", showSeatInfoHandle(formatter)).Methods("GET")
+	// 预约座位
+	mx.HandleFunc("/v1/seat/book", bookSeatHandle(formatter)).Methods("POST")
+	// 取消预约座位
+	mx.HandleFunc("/v1/seat/unbook", unbookSeatHandle(formatter)).Methods("POST")
 }
 
 func testHandler(formatter *render.Render) http.HandlerFunc {

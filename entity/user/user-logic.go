@@ -1,10 +1,17 @@
+/***************************************************************************
+Copyright(C) 2018
+Author: huziang
+Description: user的逻辑层，使用dao层接口，为上层控制层（server层）提供接口
+	PS：该文件所有错误全都panic抛出，不进行错误返回
+Date: 2018年5月4日 星期五 上午10:52
+****************************************************************************/
+
 package user
 
 import (
 	"errors"
-	"path/filepath"
 
-	"github.com/book-library-seat-system/go-server/entity/mylog"
+	. "github.com/book-library-seat-system/go-server/util"
 )
 
 var userItemsFilePath = "src/github.com/book-library-seat-system/go-server/orm/UserItems.json"
@@ -12,20 +19,47 @@ var currentUserFilePath = "src/github.com/book-library-seat-system/go-server/orm
 
 func init() {
 	// 初始化
-	userItemsFilePath = filepath.Join(*mylog.GetGOPATH(), userItemsFilePath)
-	currentUserFilePath = filepath.Join(*mylog.GetGOPATH(), currentUserFilePath)
+	// userItemsFilePath = filepath.Join(*mylog.GetGOPATH(), userItemsFilePath)
+	// currentUserFilePath = filepath.Join(*mylog.GetGOPATH(), currentUserFilePath)
 }
 
-// hasUser : 判断user是否存在
-func hasUser(ID string) bool {
+/*************************************************
+Function: HasStudent
+Description: 判断user是否存在
+InputParameter:
+	ID: 学生ID
+Return: 是否存在该学生
+*************************************************/
+func HasStudent(ID string) bool {
 	return service.FindByID(ID) != nil
 }
 
-// RegisterUser : 注册用户，如果用户名一样，则panic错误
-func RegisterUser(ID string, name string, password string,
+/*************************************************
+Function: GetStudent
+Description: 返回该学生的所有信息
+InputParameter:
+	ID: 学生ID
+Return: 该学生的所有信息
+*************************************************/
+func GetStudent(ID string) *Item {
+	return service.FindByID(ID)
+}
+
+/*************************************************
+Function: RegisterStudent
+Description: 注册用户
+InputParameter:
+	ID: 学生ID
+	name: 学生姓名
+	password: 学生密码（哈希过后的密码）
+	email: 学生邮箱
+	school: 学生学校
+Return: none
+*************************************************/
+func RegisterStudent(ID string, name string, password string,
 	email string, school string) {
-	if hasUser(ID) {
-		checkErr(errors.New("1|ERROR:The user has registered"))
+	if HasStudent(ID) {
+		CheckErr(errors.New("1|ERROR:The user has registered"))
 	}
 
 	pitem := newItem(ID, name, password, email, school)
@@ -34,47 +68,61 @@ func RegisterUser(ID string, name string, password string,
 	// mylog.AddLog("", "RegisterUser", "", pitem.String())
 }
 
-// LoginUser : 登录用户
-// 如果用户名不存在，则返回err1
-// 或者用户名密码不正确，则返回err2
-func LoginUser(ID string, password string) *Item {
-	pitem := service.FindByID(ID)
+/*************************************************
+Function: UpdateStudent
+Description: 更新学生信息
+InputParameter:
+	student: 学生更新后的信息
+Return: none
+*************************************************/
+func UpdateStudent(student Item) {
+}
+
+/*************************************************
+Function: LoginStudent
+Description: 学生登录
+InputParameter:
+	ID: 学生ID
+	password: 学生密码（哈希过后）
+Return: none
+*************************************************/
+func LoginStudent(ID string, password string) {
+	pitem := GetStudent(ID)
 	// 账号错误
 	if pitem == nil {
-		checkErr(errors.New("2|ERROR:The user's name not exists"))
+		CheckErr(errors.New("2|ERROR:The user's name not exists"))
 	}
 
 	// 密码错误
 	if pitem.Hashpassword != password {
-		checkErr(errors.New("3|ERROR:The user's password is wrong"))
+		CheckErr(errors.New("3|ERROR:The user's password is wrong"))
 	}
 
 	// 成功登录
 	// mylog.AddLog(name, "LoginUser", "", "")
-	return pitem
 }
 
-// LogoutUser : 登出用户，如果当前没有用户登录，则返回err
-func LogoutUser(ID string) {
-	if !hasUser(ID) {
-		checkErr(errors.New("4|ERROR:No login user"))
-	}
+/*************************************************
+Function: DeleteStudent
+Description: 通过ID删除用户
+InputParameter:
+	ID: 学生ID
+Return: none
+*************************************************/
+func DeleteStudent(ID string) {
 
-	// mylog.AddLog(ID, "LogoutUser", "", "")
 }
 
-// DeleteUser : 删除当前登录用户，删除后当前登录用户置为nil
-// 如果当前没有用户登录，返回err
-// func DeleteUser(loginname string) {
-// 	if !IsLogin(loginname) {
-// 		checkErr(errors.New("ERROR:No registered user"))
+// // LogoutStudent : 登出用户
+// func LogoutStudent(ID string) {
+// 	if !HasStudent(ID) {
+// 		CheckErr(errors.New("4|ERROR:No login user"))
 // 	}
 
-// 	service.DeleteByName(loginname)
-// 	mylog.AddLog(loginname, "DeleteUser", "", "")
+// 	// mylog.AddLog(ID, "LogoutUser", "", "")
 // }
 
 // to string
-func (u Item) String() string {
-	return "{Name:" + u.Name + "  Email:" + u.Email + "  Phone:" + u.School + "}"
-}
+// func (u Item) String() string {
+// 	return "{Name:" + u.Name + "  Email:" + u.Email + "  Phone:" + u.School + "}"
+// }
