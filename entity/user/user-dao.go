@@ -33,7 +33,7 @@ InputParameter:
 Return: none
 *************************************************/
 func (*ItemAtomicService) Save(student *Item) {
-	_, err := orm.Mydb.Table("user").Insert(n)
+	_, err := orm.Mydb.Table("user").Insert(student)
 	CheckErr(err)
 }
 
