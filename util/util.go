@@ -10,6 +10,8 @@ package util
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -55,6 +57,14 @@ func getFileHandle() *os.File {
 func CheckErr(err error) {
 	if err != nil {
 		panic(err)
+	}
+}
+
+// CheckDBErr 加工数据库错误，再抛出
+func CheckDBErr(err error, str string) {
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		panic(errors.New(str))
 	}
 }
 

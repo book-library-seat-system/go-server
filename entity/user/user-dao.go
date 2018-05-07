@@ -39,7 +39,7 @@ Return: none
 *************************************************/
 func (*ItemAtomicService) Save(student *Item) {
 	err := collector.Insert(student)
-	CheckErr(err)
+	CheckDBErr(err, "1|数据库学生信息插入出现错误")
 }
 
 /*************************************************
@@ -54,7 +54,7 @@ func (*ItemAtomicService) Update(student *Item) {
 		bson.M{"_id": student.ID},
 		bson.M{"$set": student},
 	)
-	CheckErr(err)
+	CheckDBErr(err, "2|数据库学生信息更新出现错误")
 }
 
 /*************************************************
@@ -67,7 +67,7 @@ Return: 查询到的学生结果，包含所有的字段
 func (*ItemAtomicService) FindByID(ID string) *Item {
 	item := &Item{}
 	err := collector.Find(bson.M{"_id": ID}).One(item)
-	CheckErr(err)
+	CheckDBErr(err, "3|数据库学生信息查找出现错误")
 	return item
 }
 
@@ -80,5 +80,5 @@ Return: none
 *************************************************/
 func (*ItemAtomicService) DeleteByID(ID string) {
 	err := collector.Remove(bson.M{"_id": ID})
-	CheckErr(err)
+	CheckDBErr(err, "4|数据库学生信息删除出现错误")
 }
