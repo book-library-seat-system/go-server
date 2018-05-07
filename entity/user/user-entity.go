@@ -10,7 +10,7 @@ package user
 // Item 用户信息
 type Item struct {
 	// 用户ID，是唯一主键
-	ID string `xorm:"pk"`
+	ID string `bson:"_id"`
 	// 用户姓名
 	Name string `json:"name,omitempty"`
 	// hash过的密码
@@ -24,12 +24,12 @@ type Item struct {
 }
 
 // newItem 新建一个UserItem，并返回指针
-func newItem(ID string, name string, password string,
+func newItem(ID string, name string, hashpassword string,
 	email string, school string) *Item {
 	newUserItem := new(Item)
 	newUserItem.ID = ID
 	newUserItem.Name = name
-	newUserItem.Hashpassword = password
+	newUserItem.Hashpassword = hashpassword
 	newUserItem.Email = email
 	newUserItem.School = school
 	newUserItem.Violation = 0

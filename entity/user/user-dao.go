@@ -9,14 +9,19 @@ Date: 2018年5月4日 星期五 上午10:51
 package user
 
 import (
-	"github.com/book-library-seat-system/go-server/orm"
+	"fmt"
+
+	"github.com/book-library-seat-system/go-server/mgdb"
 	. "github.com/book-library-seat-system/go-server/util"
+	"labix.org/v2/mgo"
+	"labix.org/v2/mgo/bson"
 )
 
+var collector *mgo.Collection
+
 func init() {
-	// err := orm.Mydb.Sync2(new(Item))
-	// CheckErr(err)
-	// fmt.Println("User database init!")
+	collector = mgdb.Mydb.DB("user").C("student")
+	fmt.Println("User database init!")
 }
 
 // ItemAtomicService 一个空类型
@@ -33,7 +38,7 @@ InputParameter:
 Return: none
 *************************************************/
 func (*ItemAtomicService) Save(student *Item) {
-	_, err := orm.Mydb.Table("user").Insert(student)
+	err := collector.Insert(student)
 	CheckErr(err)
 }
 
@@ -45,16 +50,12 @@ InputParameter:
 Return: none
 *************************************************/
 func (*ItemAtomicService) Update(student *Item) {
-
+	err := collector.Update(
+		bson.M{"_id": student.ID},
+		bson.M{"$set": student},
+	)
+	CheckErr(err)
 }
-
-// FindAll 找到所有Item
-// func (*ItemAtomicService) FindAll() []Item {
-// 	as := []Item{}
-// 	err := orm.Mydb.Table("user").Desc("ID").Find(&as)
-// 	CheckErr(err)
-// 	return as
-// }
 
 /*************************************************
 Function: FindByName
@@ -64,10 +65,10 @@ InputParameter:
 Return: 查询到的学生结果，包含所有的字段
 *************************************************/
 func (*ItemAtomicService) FindByID(ID string) *Item {
-	a := &Item{}
-	_, err := orm.Mydb.Table("user").Id(ID).Get(a)
+	item := &Item{}
+	err := collector.Find(bson.M{"_id": ID}).One(item)
 	CheckErr(err)
-	return a
+	return item
 }
 
 /*************************************************
@@ -78,11 +79,6 @@ InputParameter:
 Return: none
 *************************************************/
 func (*ItemAtomicService) DeleteByID(ID string) {
-	// 软删除
-	_, err := orm.Mydb.Table("user").Id(ID).Delete(&Item{})
-	CheckErr(err)
-
-	// 真正删除
-	_, err = orm.Mydb.Table("user").Id(ID).Unscoped().Delete(&Item{})
+	err := collector.Remove(bson.M{"_id": ID})
 	CheckErr(err)
 }

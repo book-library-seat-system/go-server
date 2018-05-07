@@ -8,6 +8,8 @@ Date: 2018年5月4日 星期五 下午1:08
 package util
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -54,4 +56,11 @@ func CheckErr(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+// MD5Hash MD5哈希函数
+func MD5Hash(input string) string {
+	md5Ctx := md5.New()
+	md5Ctx.Write([]byte(input))
+	return hex.EncodeToString(md5Ctx.Sum(nil))
 }

@@ -9,14 +9,10 @@ Date: 2018年5月4日 星期五 上午10:17
 package seat
 
 import (
-	"github.com/book-library-seat-system/go-server/orm"
 	. "github.com/book-library-seat-system/go-server/util"
 )
 
 func init() {
-	// err := orm.Mydb.Sync2(new(TItems))
-	// CheckErr(err)
-	// fmt.Println("Meeting database init!")
 }
 
 // TItemsAtomicService 一个空类型
@@ -33,8 +29,6 @@ InputParameter:
 Return: none
 *************************************************/
 func (*TItemsAtomicService) Insert(titems *TItems) {
-	_, err := orm.Mydb.Table("tseats").Insert(titems)
-	CheckErr(err)
 }
 
 /*************************************************
@@ -44,10 +38,7 @@ InputParameter: none
 Return: 找到的所有TItems列表
 *************************************************/
 func (*TItemsAtomicService) FindAll() []TItems {
-	as := []TItems{}
-	err := orm.Mydb.Table("tseats").Desc("TimeInterval").Find(&as)
-	CheckErr(err)
-	return as
+	return nil
 }
 
 /*************************************************
@@ -57,11 +48,8 @@ InputParameter:
 	school: 主键
 Return: 找到的对应TItems，如果没有为nil
 *************************************************/
-func (*TItemsAtomicService) FindBySchool(school string) TItems {
-	a := TItems{}
-	_, err := orm.Mydb.Table("tseats").Id(school).Get(a)
-	CheckErr(err)
-	return a
+func (*TItemsAtomicService) FindBySchool(school string) *TItems {
+	return nil
 }
 
 /*************************************************

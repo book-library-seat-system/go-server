@@ -30,7 +30,7 @@ type TItems struct {
 	// 所属学校，主键
 	School string
 	// 该学校所有可用时间段和座位信息
-	Titems map[TimeInterval]([]Item)
+	Items map[TimeInterval]([]Item)
 }
 
 // Equal TimeInterval相等比较
