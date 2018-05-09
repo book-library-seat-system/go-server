@@ -1,7 +1,6 @@
 package user
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/book-library-seat-system/go-server/mgdb"
@@ -16,9 +15,6 @@ func init() {
 	hza = newItem("12345678", "huziang", MD5Hash("111"), "111@qq.com", "Sun-Yet Sun University")
 	lbb = newItem("11112222", "linbinbin", MD5Hash("222"), "222@qq.com", "Sun-Yet Sun University")
 	hmy = newItem("33334444", "huangminyi", MD5Hash("333"), "333@qq.com", "Sun-Yet Sun University")
-
-	c := mgdb.Mydb.DB("user").C("student")
-	c.RemoveAll(nil)
 }
 
 func TestSave(t *testing.T) {
@@ -29,9 +25,9 @@ func TestSave(t *testing.T) {
 	}()
 
 	// 插入三个节点
-	service.Save(hza)
-	service.Save(lbb)
-	service.Save(hmy)
+	service.Insert(hza)
+	service.Insert(lbb)
+	service.Insert(hmy)
 
 	c := mgdb.Mydb.DB("user").C("student")
 	users := &[]Item{}
@@ -42,6 +38,12 @@ func TestSave(t *testing.T) {
 }
 
 func TestFindByID(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil {
+			t.Error(err)
+		}
+	}()
+
 	equal := func(item1 *Item, item2 *Item) bool {
 		return item1.ID == item2.ID &&
 			item1.Name == item2.Name &&
@@ -67,6 +69,12 @@ func TestFindByID(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil {
+			t.Error(err)
+		}
+	}()
+
 	// 修改一个属性，判断数据库有没有修改
 	hza.Email = "qqq@qq.com"
 	service.Update(hza)
@@ -77,24 +85,21 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestDeleteByID(t *testing.T) {
-	// 删除所有信息
-	//service.DeleteByID(hza.ID)
+	defer func() {
+		if err := recover(); err != nil {
+			t.Error(err)
+		}
+	}()
+
+	// 删除全部
+	service.DeleteByID(hza.ID)
 	service.DeleteByID(lbb.ID)
 	service.DeleteByID(hmy.ID)
 
 	c := mgdb.Mydb.DB("user").C("student")
 	users := &[]Item{}
 	c.Find(nil).All(users)
-	if len(*users) != 1 {
-		t.Error("Save error!")
-	}
-}
-
-func TestShow(t *testing.T) {
-	c := mgdb.Mydb.DB("user").C("student")
-	users := &[]Item{}
-	c.Find(nil).All(users)
-	for i := 0; i < len(*users); i++ {
-		fmt.Println((*users)[i])
+	if len(*users) != 0 {
+		t.Error("Delete error!")
 	}
 }

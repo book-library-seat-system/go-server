@@ -63,7 +63,7 @@ func RegisterStudent(ID string, name string, password string,
 	}
 
 	pitem := newItem(ID, name, password, email, school)
-	service.Save(pitem)
+	service.Insert(pitem)
 
 	// mylog.AddLog("", "RegisterUser", "", pitem.String())
 }

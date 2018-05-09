@@ -37,7 +37,7 @@ InputParameter:
 	student: 新的student
 Return: none
 *************************************************/
-func (*ItemAtomicService) Save(student *Item) {
+func (*ItemAtomicService) Insert(student *Item) {
 	err := collector.Insert(student)
 	CheckDBErr(err, "1|数据库学生信息插入出现错误")
 }
@@ -58,7 +58,7 @@ func (*ItemAtomicService) Update(student *Item) {
 }
 
 /*************************************************
-Function: FindByName
+Function: FindByID
 Description: 通过主键ID查询数据
 InputParameter:
 	ID: 学生的ID
@@ -72,7 +72,7 @@ func (*ItemAtomicService) FindByID(ID string) *Item {
 }
 
 /*************************************************
-Function: DeleteByName
+Function: DeleteByID
 Description: 通过主键ID删除数据，是真正的删除
 InputParameter:
 	ID: 学生的ID

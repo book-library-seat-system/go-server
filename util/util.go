@@ -17,6 +17,8 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	ini "github.com/vaughan0/go-ini"
 )
 
 var logDivPath = "src/github.com/book-library-seat-system/go-server/log"
@@ -27,7 +29,7 @@ func init() {
 }
 
 //GetGOPATH 获得用户环境的gopath
-func GetGOPATH() *string {
+func GetGOPATH() string {
 	var sp string
 	if runtime.GOOS == "windows" {
 		sp = ";"
@@ -37,19 +39,20 @@ func GetGOPATH() *string {
 	goPath := strings.Split(os.Getenv("GOPATH"), sp)
 	for _, v := range goPath {
 		if _, err := os.Stat(filepath.Join(v, "/src/github.com/book-library-seat-system/go-server/util/util.go")); !os.IsNotExist(err) {
-			return &v
+			return v
 		}
 	}
-	return nil
+	return ""
 }
 
 func getFileHandle() *os.File {
-	if _, err := os.Open(logDivPath + logFilePath); err != nil {
-		os.Create(logDivPath + logFilePath)
+	abspath := GetGOPATH() + logDivPath + logFilePath
+	if _, err := os.Open(abspath); err != nil {
+		os.Create(abspath)
 	}
 
 	// 以追加模式打开文件,并向文件写入
-	fi, _ := os.OpenFile(logDivPath+logFilePath, os.O_RDWR|os.O_APPEND, 0)
+	fi, _ := os.OpenFile(abspath, os.O_RDWR|os.O_APPEND, 0)
 	return fi
 }
 
@@ -73,4 +76,15 @@ func MD5Hash(input string) string {
 	md5Ctx := md5.New()
 	md5Ctx.Write([]byte(input))
 	return hex.EncodeToString(md5Ctx.Sum(nil))
+}
+
+func ReadFromIniFile(blockname string, rowname string) string {
+	// 从配置文件中读取段数
+	file, err := ini.LoadFile(filepath.Join(GetGOPATH(), "/src/github.com/book-library-seat-system/go-server/config.ini"))
+	CheckErr(err)
+	str, ok := file.Get(blockname, rowname)
+	if !ok {
+		panic(errors.New("202|读取配置文件发生错误"))
+	}
+	return str
 }

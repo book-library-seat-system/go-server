@@ -8,12 +8,10 @@ Date: 2018年5月4日 星期五 上午10:23
 package seat
 
 import (
-	"errors"
 	"strconv"
 	"time"
 
 	. "github.com/book-library-seat-system/go-server/util"
-	"github.com/vaughan0/go-ini"
 )
 
 // Item 座位信息
@@ -83,20 +81,19 @@ func newSTItem(school string, seatnumber int) *STItem {
 
 // 通过配置文件，读取有效时间段
 func currentTimeInterval() []TimeInterval {
-	// 从配置文件中读取段数
-	file, err := ini.LoadFile("config.ini")
-	CheckErr(err)
-	timesstr, ok := file.Get("TimeInterval", "times")
-	if !ok {
-		panic(errors.New("config.ini haven't \"times\"!"))
-	}
-	times, err := strconv.Atoi(timesstr)
-	CheckErr(err)
+	timesstr := ReadFromIniFile("TimeInterval", "times")
+	times, _ := strconv.Atoi(timesstr)
 
 	// 生成时间段
 	timeinterval := []TimeInterval{}
+	begintime := time.Date(2018, time.Month(4), 1, 9, 0, 0, 0, time.Now().Location())
+	h, err := time.ParseDuration("1h")
+	CheckDBErr(err, "201|生成时间发生错误")
+	endtime := begintime.Add(h)
 	for i := 0; i < times; i++ {
-
+		timeinterval = append(timeinterval, TimeInterval{begintime, endtime})
+		begintime = endtime
+		endtime = endtime.Add(h)
 	}
 	return timeinterval
 }

@@ -41,8 +41,10 @@ Return: none
 *************************************************/
 func (*TItemsAtomicService) Insert(stitem *STItem) {
 	c := database.C(stitem.School)
-	err := c.Insert(stitem.Titems)
-	CheckDBErr(err, "101|数据库座位信息插入出现错误")
+	for i := 0; i < len(stitem.Titems); i++ {
+		err := c.Insert(stitem.Titems[i])
+		CheckDBErr(err, "101|数据库座位信息插入出现错误")
+	}
 }
 
 /*************************************************
@@ -51,18 +53,18 @@ Description: 找到所有Item
 InputParameter: none
 Return: 找到的所有TItems列表
 *************************************************/
-func (this *TItemsAtomicService) FindAll() []STItem {
-	names, err := database.CollectionNames()
-	CheckDBErr(err, "103|数据库座位信息查找出现错误")
-	stitems := []STItem{}
-	for i := 0; i < len(names); i++ {
-		stitems = append(stitems, STItem{
-			names[i],
-			this.FindBySchool(names[i]),
-		})
-	}
-	return stitems
-}
+// func (this *TItemsAtomicService) FindAll() []STItem {
+// 	names, err := database.CollectionNames()
+// 	CheckDBErr(err, "103|数据库座位信息查找出现错误")
+// 	stitems := []STItem{}
+// 	for i := 0; i < len(names); i++ {
+// 		stitems = append(stitems, STItem{
+// 			names[i],
+// 			this.FindBySchool(names[i]),
+// 		})
+// 	}
+// 	return stitems
+// }
 
 /*************************************************
 Function: FindBySchool
@@ -74,7 +76,7 @@ Return: 找到的对应TItems，如果没有为nil
 func (*TItemsAtomicService) FindBySchool(school string) []TItem {
 	c := database.C(school)
 	titems := []TItem{}
-	err := c.Find(nil).One(titems)
+	err := c.Find(nil).All(&titems)
 	CheckDBErr(err, "103|数据库座位信息查找出现错误")
 	return titems
 }
@@ -90,9 +92,59 @@ Return: 查找到的座位信息，如果不存在返回nil
 func (this *TItemsAtomicService) FindBySchoolAndTimeInterval(school string, timeinterval TimeInterval) []Item {
 	c := database.C(school)
 	titem := TItem{}
-	err := c.Find(bson.M{"timeinterval": timeinterval}).One(titem)
+	err := c.Find(bson.M{"timeinterval": timeinterval}).One(&titem)
 	CheckDBErr(err, "103|数据库座位信息查找出现错误")
 	return titem.Items
+}
+
+/*************************************************
+Function: UpdateAllSeat
+Description: 通过两个主键更新多个座位信息
+InputParameter:
+	school: 主键1
+	timeinterval: 主键2
+	seats: 要更改的座位信息
+Return: none
+*************************************************/
+func (*TItemsAtomicService) UpdateAllSeat(
+	school string,
+	timeinterval TimeInterval,
+	seats []Item) {
+	c := database.C(school)
+	err := c.Update(
+		bson.M{"timeinterval": timeinterval},
+		bson.M{"$set": bson.M{"items": seats}},
+	)
+	CheckDBErr(err, "102|数据库座位信息更新出现错误")
+}
+
+/*************************************************
+Function: UpdateOneSeat
+Description: 通过两个主键更新单个座位信息
+InputParameter:
+	school: 主键1
+	timeinterval: 主键2
+	seat: 要更改的座位信息
+Return: none
+*************************************************/
+func (*TItemsAtomicService) UpdateOneSeat(
+	school string,
+	timeinterval TimeInterval,
+	seat Item) {
+	c := database.C(school)
+	err := c.Update(
+		bson.M{
+			"timeinterval": timeinterval,
+			"items":        bson.M{"$elemMatch": bson.M{"seatid": seat.SeatID}},
+		},
+		bson.M{
+			"$set": bson.M{
+				"items.$.seatinfo":  seat.Seatinfo,
+				"items.$.studentid": seat.StudentID,
+			},
+		},
+	)
+	CheckDBErr(err, "102|数据库座位信息更新出现错误")
 }
 
 /*************************************************
@@ -119,32 +171,4 @@ func (*TItemsAtomicService) DeleteBySchoolAndTimeInterval(school string, timeint
 	c := database.C(school)
 	err := c.Remove(bson.M{"timeinterval": timeinterval})
 	CheckDBErr(err, "104|数据库座位信息删除出现错误")
-}
-
-/*************************************************
-Function: UpdateBySchoolAndTimeInterval
-Description: 通过两个主键更新座位信息
-InputParameter:
-	school: 主键1
-	timeinterval: 主键2
-	seats: 要更改的座位信息
-Return: none
-*************************************************/
-func (*TItemsAtomicService) UpdateManySeat(
-	school string,
-	timeinterval TimeInterval,
-	seats []Item) {
-	c := database.C(school)
-	err := c.Update(
-		bson.M{"timeinterval": timeinterval},
-		bson.M{"$set": bson.M{"items": seats}},
-	)
-	CheckDBErr(err, "102|数据库座位信息更新出现错误")
-}
-
-func (*TItemsAtomicService) UpdateOneSeat(
-	school string,
-	timeinterval TimeInterval,
-	seat Item) {
-
 }
