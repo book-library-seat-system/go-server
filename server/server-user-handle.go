@@ -9,9 +9,10 @@ Date: 2018年5月4日 星期五 下午1:13
 package server
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/bitly/go-simplejson"
 	"github.com/book-library-seat-system/go-server/entity/user"
@@ -20,27 +21,13 @@ import (
 )
 
 // 用于返回的模板Json
-type resj struct {
+type Returnjson struct {
 	// 包含userItem属性
 	user.Item
-	// 返回user查询列表
-	Users []user.Item `json:",omitempty"`
-	// 表示结果
-	Information string
-}
-
-// error.toString
-func toString(err interface{}) string {
-	if err == nil {
-		return ""
-	}
-	return fmt.Sprint(err)
-}
-
-// 标准response JSON，只包含Success和Result
-func stdResj(err interface{}) resj {
-	return resj{
-		Information: toString(err)}
+	// 错误码
+	Errorcode int `json:"errorcode,omitempty"`
+	// 错误信息
+	Errorinformation string `json:"errorinformation,omitempty"`
 }
 
 // 解析传过来的JSON和cookie
@@ -64,10 +51,26 @@ func praseCookie(r *http.Request) string {
 	return ""
 }
 
-// 返回错误表单
+// 返回json信息
 func errResponse(w http.ResponseWriter, formatter *render.Render) {
+	var rtn Returnjson
 	if err := recover(); err != nil {
-		formatter.JSON(w, 500, stdResj(err))
+		errstrs := strings.Split(err.(error).Error(), "|")
+		if len(errstrs) != 2 {
+			rtn.Errorcode = 200
+			rtn.Errorinformation = "未定义错误"
+		} else if rtn.Errorcode, err = strconv.Atoi(errstrs[0]); err != nil {
+			rtn.Errorcode = 200
+			rtn.Errorinformation = "未定义错误"
+		}
+		rtn.Errorinformation = errstrs[1]
+
+		// 发送json返回
+		formatter.JSON(w, 500, rtn)
+	} else {
+		rtn.Errorcode = 0
+		rtn.Errorinformation = ""
+		formatter.JSON(w, http.StatusOK, rtn)
 	}
 }
 
@@ -80,16 +83,17 @@ func test(formatter *render.Render) http.HandlerFunc {
 // 创建一个新的用户
 func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// defer errResponse(w, formatter)
+		defer errResponse(w, formatter)
 
-		// js := praseJSON(r)
-		// user.RegisterUser(
-		// 	js.Get("Name").MustString(),
-		// 	js.Get("Password").MustString(),
-		// 	js.Get("Email").MustString(),
-		// 	js.Get("Phone").MustString())
+		js := praseJSON(r)
+		user.RegisterStudent(
+			js.Get("ID").MustString(),
+			js.Get("name").MustString(),
+			js.Get("password").MustString(),
+			js.Get("email").MustString(),
+			js.Get("school").MustString())
 
-		// formatter.JSON(w, http.StatusOK, stdResj(nil))
+		formatter.JSON(w, http.StatusOK, nil)
 	}
 }
 
@@ -145,27 +149,3 @@ func listStudentInfoHandle(formatter *render.Render) http.HandlerFunc {
 		// formatter.JSON(w, http.StatusOK, resjson)
 	}
 }
-
-// // 删除已登录用户
-// func deleteUserHandle(formatter *render.Render) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		defer errResponse(w, formatter)
-
-// 		loginname := praseCookie(r)
-// 		user.DeleteUser(loginname)
-
-// 		// 如果成功删除，设置cookie
-// 		cookie := http.Cookie{
-// 			Name:   "username",
-// 			Path:   "/",
-// 			MaxAge: -1}
-// 		http.SetCookie(w, &cookie)
-// 		formatter.JSON(w, http.StatusOK, stdResj(nil))
-// 	}
-// }
-
-// func undefinedHandler(formatter *render.Render) http.HandlerFunc {
-//
-// 	return func(w http.ResponseWriter, req *http.Request) {
-// 	}
-// }

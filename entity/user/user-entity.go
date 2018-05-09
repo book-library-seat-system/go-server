@@ -10,7 +10,7 @@ package user
 // Item 用户信息
 type Item struct {
 	// 用户ID，是唯一主键
-	ID string `bson:"_id"`
+	ID string `json:"ID,omitempty" bson:"_id"`
 	// 用户姓名
 	Name string `json:"name,omitempty"`
 	// hash过的密码
@@ -20,7 +20,7 @@ type Item struct {
 	// 学生所在学校
 	School string `json:"school,omitempty"`
 	// 学生被警告次数
-	Violation int `json:"violation"`
+	Violation int `json:"violation,omitempty"`
 }
 
 // newItem 新建一个UserItem，并返回指针
