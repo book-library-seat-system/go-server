@@ -27,10 +27,9 @@ InputParameter:
 Return: 可用时间间隔数组，以一小时为单位
 *************************************************/
 func GetAllTimeInterval(school string) []TimeInterval {
-	titems := []Titem{}
-	titems = service.FindBySchool(school)
+	titems := service.FindBySchool(school)
 	timeintervals := []TimeInterval{}
-	for i := 0; i<len(titems) ;i++{
+	for i := 0; i<len(titems); i++{
 		timeintervals[i] = titems[i].TimeInterval
 	}
 	return timeintervals
@@ -46,8 +45,7 @@ Return: 该时间段的座位预约信息，用int数组保存
 *************************************************/
 func GetAllSeatinfo(school string, timeinterval TimeInterval) []int {
 	seatinfo := []int
-	items := []Item{}
-	items = service.FindBySchoolAndTimeInterval(school, timeinterval)
+	items := service.FindBySchoolAndTimeInterval(school, timeinterval)
 	for i := 0; i<len(items); i++ {
 		seatinfo[i] = items[i].Seatinfo
 	}
@@ -63,9 +61,8 @@ InputParameter:
 Return: 未预约的座位数量
 *************************************************/
 func GetAllUnbookSeatNumber(school string, timeinterval TimeInterval) int {
-	count int
-	items := []Item{}
-	items = service.FindBySchoolAndTimeInterval(school, timeinterval)
+	count := 0
+	items := service.FindBySchoolAndTimeInterval(school, timeinterval)
     for i := 0; i<len(items) ;i++{
 		if items[i].Seatinfo == 0{
 			count++
@@ -84,9 +81,8 @@ InputParameter:
 	seatid: 座位ID，即数组下标
 Return: none
 *************************************************/
-func BookSeat(school string, timeinterval TimeInterval, studentid string, seatid string) {
-    items := []Item{}
-	items = service.FindBySchoolAndTimeInterval(school, timeinterval)
+func BookSeat(school string, timeinterval TimeInterval, studentid string, seatid int) {
+	items := service.FindBySchoolAndTimeInterval(school, timeinterval)
 	for i := 0; i<len(items) ;i++{
 		if items[i].SeatID == seatid{
 			items[i].StudentID = studentid
@@ -105,9 +101,8 @@ InputParameter:
 	seatid: 座位ID，即数组下标
 Return: none
 *************************************************/
-func UnbookSeat(school string, timeinterval TimeInterval, studentid string, seatid string) {
-    items := []Item{}
-	items = service.FindBySchoolAndTimeInterval(school, timeinterval)
+func UnbookSeat(school string, timeinterval TimeInterval, studentid string, seatid int) {
+	items := service.FindBySchoolAndTimeInterval(school, timeinterval)
 	for i := 0; i<len(items) ;i++{
 		if items[i].SeatID == seatid && items[i].StudentID == studentid{
 			items[i].StudentID = ""

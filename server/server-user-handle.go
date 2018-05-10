@@ -53,8 +53,8 @@ func praseCookie(r *http.Request) string {
 
 // 返回json信息
 func errResponse(w http.ResponseWriter, formatter *render.Render) {
-	var rtn Returnjson
 	if err := recover(); err != nil {
+		var rtn Returnjson
 		errstrs := strings.Split(err.(error).Error(), "|")
 		if len(errstrs) != 2 {
 			rtn.Errorcode = 200
@@ -67,10 +67,6 @@ func errResponse(w http.ResponseWriter, formatter *render.Render) {
 
 		// 发送json返回
 		formatter.JSON(w, 500, rtn)
-	} else {
-		rtn.Errorcode = 0
-		rtn.Errorinformation = ""
-		formatter.JSON(w, http.StatusOK, rtn)
 	}
 }
 
@@ -85,6 +81,7 @@ func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
 
+		// 解析json数据
 		js := praseJSON(r)
 		user.RegisterStudent(
 			js.Get("ID").MustString(),
@@ -93,7 +90,10 @@ func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 			js.Get("email").MustString(),
 			js.Get("school").MustString())
 
-		formatter.JSON(w, http.StatusOK, nil)
+		formatter.JSON(w, http.StatusOK, Returnjson{
+			Errorcode:        0,
+			Errorinformation: "",
+		})
 	}
 }
 
