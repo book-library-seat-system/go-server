@@ -42,14 +42,14 @@ func praseJSON(r *http.Request) *simplejson.Json {
 	return temp
 }
 
-func praseCookie(r *http.Request) string {
-	// 解析cookie
-	cookie, _ := r.Cookie("username")
-	if cookie != nil {
-		return cookie.Value
-	}
-	return ""
-}
+// func praseCookie(r *http.Request) string {
+// 	// 解析cookie
+// 	cookie, _ := r.Cookie("username")
+// 	if cookie != nil {
+// 		return cookie.Value
+// 	}
+// 	return ""
+// }
 
 // 返回json信息
 func errResponse(w http.ResponseWriter, formatter *render.Render) {
@@ -58,7 +58,7 @@ func errResponse(w http.ResponseWriter, formatter *render.Render) {
 		errstrs := strings.Split(err.(error).Error(), "|")
 		if len(errstrs) != 2 {
 			rtn.Errorcode = 200
-			rtn.Errorinformation = "未定义错误"
+			rtn.Errorinformation = err.(error).Error()
 		} else if rtn.Errorcode, err = strconv.Atoi(errstrs[0]); err != nil {
 			rtn.Errorcode = 200
 			rtn.Errorinformation = "未定义错误"
