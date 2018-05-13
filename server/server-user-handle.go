@@ -9,10 +9,9 @@ Date: 2018年5月4日 星期五 下午1:13
 package server
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
-	"strings"
 
 	"github.com/bitly/go-simplejson"
 	"github.com/book-library-seat-system/go-server/entity/user"
@@ -21,13 +20,27 @@ import (
 )
 
 // 用于返回的模板Json
-type Returnjson struct {
+type resj struct {
 	// 包含userItem属性
 	user.Item
-	// 错误码
-	Errorcode int `json:"errorcode,omitempty"`
-	// 错误信息
-	Errorinformation string `json:"errorinformation,omitempty"`
+	// 返回user查询列表
+	Users []user.Item `json:",omitempty"`
+	// 表示结果
+	Information string
+}
+
+// error.toString
+func toString(err interface{}) string {
+	if err == nil {
+		return ""
+	}
+	return fmt.Sprint(err)
+}
+
+// 标准response JSON，只包含Success和Result
+func stdResj(err interface{}) resj {
+	return resj{
+		Information: toString(err)}
 }
 
 // 解析传过来的JSON和cookie
@@ -42,31 +55,19 @@ func praseJSON(r *http.Request) *simplejson.Json {
 	return temp
 }
 
-// func praseCookie(r *http.Request) string {
-// 	// 解析cookie
-// 	cookie, _ := r.Cookie("username")
-// 	if cookie != nil {
-// 		return cookie.Value
-// 	}
-// 	return ""
-// }
+func praseCookie(r *http.Request) string {
+	// 解析cookie
+	cookie, _ := r.Cookie("username")
+	if cookie != nil {
+		return cookie.Value
+	}
+	return ""
+}
 
-// 返回json信息
+// 返回错误表单
 func errResponse(w http.ResponseWriter, formatter *render.Render) {
 	if err := recover(); err != nil {
-		var rtn Returnjson
-		errstrs := strings.Split(err.(error).Error(), "|")
-		if len(errstrs) != 2 {
-			rtn.Errorcode = 200
-			rtn.Errorinformation = err.(error).Error()
-		} else if rtn.Errorcode, err = strconv.Atoi(errstrs[0]); err != nil {
-			rtn.Errorcode = 200
-			rtn.Errorinformation = "未定义错误"
-		}
-		rtn.Errorinformation = errstrs[1]
-
-		// 发送json返回
-		formatter.JSON(w, 500, rtn)
+		formatter.JSON(w, 500, stdResj(err))
 	}
 }
 
@@ -92,7 +93,7 @@ func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 
 		formatter.JSON(w, http.StatusOK, Returnjson{
 			Errorcode:        0,
-			Errorinformation: "",
+			Errorinformation: ""
 		})
 	}
 }
@@ -100,27 +101,29 @@ func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 // 登录用户
 func loginStudentHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// defer errResponse(w, formatter)
+		defer errResponse(w, formatter)
 
-		// // 使用user函数
-		// js := praseJSON(r)
-		// loginname := praseCookie(r)
-		// pitem := user.LoginUser(
-		// 	js.Get("Name").MustString(),
-		// 	js.Get("Password").MustString(),
-		// 	loginname)
+		// 使用user函数
+		js := praseJSON(r)
+		loginname := praseCookie(r)
+		pitem := user.LoginUser(
+		js.Get("ID").MustString(),
+		js.Get("password").MustString())
 
-		// // 如果成功登录，设置cookie
-		// cookie := http.Cookie{
-		// 	Name:   "username",
-		// 	Value:  pitem.Name,
-		// 	Path:   "/",
-		// 	MaxAge: 1200}
-		// http.SetCookie(w, &cookie)
+		// 如果成功登录，设置cookie???
+		cookie := http.Cookie{
+		name:   "username",
+		Value:  pitem.ID,
+		}
+		http.SetCookie(w, &cookie)
 
-		// resjson := stdResj(nil)
-		// resjson.Item = *pitem
-		// formatter.JSON(w, http.StatusOK, resjson)
+		resjson := stdResj(nil)
+		resjson.Item = *pitem
+		formatter.JSON(w, http.StatusOK, Returnjson{
+			Errorcode:        0,
+			Errorinformation: "",
+			resjson
+		})
 	}
 }
 
@@ -132,13 +135,13 @@ func logoutStudentHandle(formatter *render.Render) http.HandlerFunc {
 		// loginname := praseCookie(r)
 		// user.LogoutUser(loginname)
 
-		// formatter.JSON(w, http.StatusOK, stdResj(nil))
+		formatter.JSON(w, http.StatusOK, stdResj(nil))
 	}
 }
 
 // 显示所有用户
-func listStudentInfoHandle(formatter *render.Render) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+//func listStudentInfoHandle(formatter *render.Render) http.HandlerFunc {
+//	return func(w http.ResponseWriter, r *http.Request) {
 		// defer errResponse(w, formatter)
 
 		// loginname := praseCookie(r)
@@ -147,5 +150,29 @@ func listStudentInfoHandle(formatter *render.Render) http.HandlerFunc {
 		// resjson := stdResj(nil)
 		// resjson.Users = items
 		// formatter.JSON(w, http.StatusOK, resjson)
-	}
-}
+	//}
+//}
+
+// // 删除已登录用户
+// func deleteUserHandle(formatter *render.Render) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		defer errResponse(w, formatter)
+
+// 		loginname := praseCookie(r)
+// 		user.DeleteUser(loginname)
+
+// 		// 如果成功删除，设置cookie
+// 		cookie := http.Cookie{
+// 			Name:   "username",
+// 			Path:   "/",
+// 			MaxAge: -1}
+// 		http.SetCookie(w, &cookie)
+// 		formatter.JSON(w, http.StatusOK, stdResj(nil))
+// 	}
+// }
+
+// func undefinedHandler(formatter *render.Render) http.HandlerFunc {
+//
+// 	return func(w http.ResponseWriter, req *http.Request) {
+// 	}
+// }
