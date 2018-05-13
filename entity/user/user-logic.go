@@ -8,6 +8,12 @@ Date: 2018年5月4日 星期五 上午10:52
 
 package user
 
+import (
+	"errors"
+
+	. "github.com/book-library-seat-system/go-server/util"
+)
+
 var userItemsFilePath = "src/github.com/book-library-seat-system/go-server/orm/UserItems.json"
 var currentUserFilePath = "src/github.com/book-library-seat-system/go-server/orm/Current.txt"
 
@@ -52,6 +58,14 @@ Return: none
 *************************************************/
 func RegisterStudent(ID string, name string, password string,
 	email string, school string) {
+	if HasStudent(ID) {
+		CheckErr(errors.New("1|ERROR:The user has registered"))
+	}
+
+	pitem := newItem(ID, name, password, email, school)
+	service.Insert(pitem)
+
+	// mylog.AddLog("", "RegisterUser", "", pitem.String())
 }
 
 /*************************************************
@@ -62,6 +76,7 @@ InputParameter:
 Return: none
 *************************************************/
 func UpdateStudent(student Item) {
+	server.Update(student) 
 }
 
 /*************************************************
@@ -73,6 +88,19 @@ InputParameter:
 Return: none
 *************************************************/
 func LoginStudent(ID string, password string) {
+	pitem := GetStudent(ID)
+	// 账号错误
+	if pitem == nil {
+		CheckErr(errors.New("2|ERROR:The user's name not exists"))
+	}
+
+	// 密码错误
+	if pitem.Hashpassword != password {
+		CheckErr(errors.New("3|ERROR:The user's password is wrong"))
+	}
+
+	// 成功登录
+	// mylog.AddLog(name, "LoginUser", "", "")
 }
 
 /*************************************************
@@ -83,4 +111,24 @@ InputParameter:
 Return: none
 *************************************************/
 func DeleteStudent(ID string) {
+	pitem := GetStudent(ID)
+	// 账号错误
+	if pitem == nil {
+		CheckErr(errors.New("2|ERROR:The user's name not exists"))
+	}
+	service.DeleteByID(ID)
 }
+
+// // LogoutStudent : 登出用户
+// func LogoutStudent(ID string) {
+// 	if !HasStudent(ID) {
+// 		CheckErr(errors.New("4|ERROR:No login user"))
+// 	}
+
+// 	// mylog.AddLog(ID, "LogoutUser", "", "")
+// }
+
+// to string
+// func (u Item) String() string {
+// 	return "{Name:" + u.Name + "  Email:" + u.Email + "  Phone:" + u.School + "}"
+// }
