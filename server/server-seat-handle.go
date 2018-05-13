@@ -19,7 +19,7 @@ type resjson struct {
 	Information string
 }
 
-//meetingjson 创建会议 存放json解析后的数据
+/*//meetingjson 创建会议 存放json解析后的数据
 type meetingjson struct {
 	//会议主题
 	Title string
@@ -46,10 +46,22 @@ func getParticipatorsName(p []string) string {
 	fmt.Println(s)
 	return s
 }
+*/
 
-// 返回cookie中携带的Name字段
-func getCurrentUserNameMeeting(r *http.Request) string {
-	cookie, _ := r.Cookie("username")
+ //返回cookie中携带的School字段
+func getCurrentSchool(r *http.Request) string {
+	cookie, _ := r.Cookie("school")
+	if cookie != nil {
+		return cookie.Value
+	} else {
+		fmt.Println("cookie nil")
+	}
+	return "unknown"
+}
+
+//返回cookie中携带的ID字段
+func getCurrentID(r *http.Request) string {
+	cookie, _ := r.Cookie("ID")
 	if cookie != nil {
 		return cookie.Value
 	} else {
@@ -64,27 +76,119 @@ func getResponseJson(info string) resjson {
 		Information: info}
 }
 
+
 func showTimeIntervalInfoHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		def errResponse(w, formatter)
 
+		//解析json数据
+		fmt.Println("showTimeIntervalInfoHandle") 
+		school := getCurrentSchool(r)
+		timeintervals := seat.GetAllTimeInterval(school)
+		count := GetAllUnbookSeatNumber(school string, timeinterval TimeInterval)
+		
+		errorInfo := {
+			"erorcoe": 0,
+			"errorinfomation": "",
+			"timeintervals":
+		}
+		var timeintervalsInfo string
+		for i := 0; i<len(timeintervals); i++{
+			count := GetAllUnbookSeatNumber(school, timeintervals[i])
+			timeintervalsInfo += timeintervals[i].Begintime+"   "+timeintervals[i].Endtime+"   "+count
+		} 
+		queryIntervalResult, err = errorInfo + timeintervalsInfo
+
+		var info string
+		if err != nil{
+			info = err.Error()
+			formatter.JSON(w, http.StatusOK, getResponseJson(info))
+		}else{
+			info = queryIntervalResult
+			formatter.JSON(w, http.StatusOK, getResponseJson(info))
+		}
 	}
 }
 
 func showSeatInfoHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		def errResponse(w, formatter)
 
+		//解析json数据
+		fmt.Println("showSeatInfoHandle") 
+		school := getCurrentSchool(r)
+		timeintervals := seat.GetAllTimeInterval(school)
+		
+		errorInfo := {
+			"erorcoe": 0,
+			"errorinfomation": ""
+		}
+		var seatInfo int[]
+		for i := 0; i<len(timeintervals); i++{
+			seatInfo[i] := GetAllSeatinfo(school, timeintervals[i])
+		} 
+		querySeatResult, err = errorInfo + seatInfo
+
+		var info string
+		if err != nil{
+			info = err.Error()
+			formatter.JSON(w, http.StatusOK, getResponseJson(info))
+		}else{
+			info = querySeatResult
+			formatter.JSON(w, http.StatusOK, getResponseJson(info))
+		}
 	}
 }
 
 func bookSeatHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		js := praseJSON(r)
+		begintime := js.Get("begintime").MustString()
+		endtime := js.Get("endtime").MustString()
+		seatID := js.Get("seatID").MustString()
+
+		school := getCurrentSchool(r)
+		studentid := getCurrentID(r)
+		timeinterval = TimeInterval{begintime, endtime}
+
+		err := seat.BookSeat(school, timeinterval, studentid, seatID)
+
+		if err != nil{
+			info = err.Error()
+			formatter.JSON(w, http.StatusOK, getResponseJson(info))
+		}else{
+			formatter.JSON(w, http.StatusOK, Returnjson{
+				Errorcode:        0,
+				Errorinformation: "",
+			})
+		}
 	}
 }
 
 func unbookSeatHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		js := praseJSON(r)
+		begintime := js.Get("begintime").MustString()
+		endtime := js.Get("endtime").MustString()
+		seatID := js.Get("seatID").MustString()
+
+		school := getCurrentSchool(r)
+		studentid := getCurrentID(r)
+		timeinterval = TimeInterval{begintime, endtime}
+
+		err := UnbookSeat(school, timeinterval, studentid, seatID)
+
+		if err != nil{
+			info = err.Error()
+			formatter.JSON(w, http.StatusOK, getResponseJson(info))
+		}else{
+			formatter.JSON(w, http.StatusOK, Returnjson{
+				Errorcode:      15,
+			Errorinformation: "Can't unbook another seats",
+			})
+		}
 	}
 }
 
