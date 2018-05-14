@@ -18,6 +18,7 @@ import (
 	"github.com/unrolled/render"
 )
 
+// TimeIntervalJson 在TimeInterval的前提下新加入一个字段
 type TimeintervalJson struct {
 	// 时间段
 	seat.TimeInterval
@@ -33,6 +34,7 @@ type TimeintervalRtnJson struct {
 	ErrorRtnJson
 }
 
+// SeatinfoRtnJson 返回的座位信息数组
 type SeatinfoRtnJson struct {
 	// 座位信息
 	Seatinfo []int `json:"seatinfo,omitempty"`
@@ -40,6 +42,7 @@ type SeatinfoRtnJson struct {
 	ErrorRtnJson
 }
 
+// 返回时间段信息
 func showTimeIntervalInfoHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
@@ -64,6 +67,7 @@ func showTimeIntervalInfoHandle(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
+// 返回座位信息
 func showSeatInfoHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
@@ -91,6 +95,7 @@ func showSeatInfoHandle(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
+// 预约座位
 func bookSeatHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
@@ -113,6 +118,7 @@ func bookSeatHandle(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
+// 取消预约座位
 func unbookSeatHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)

@@ -51,6 +51,7 @@ func parseCookie(r *http.Request) (string, string, error) {
 	return ID.Value, school.Value, nil
 }
 
+// 得到设置的cookie
 func getCookie(key string, value string) *http.Cookie {
 	return &http.Cookie{
 		Name:   key,
