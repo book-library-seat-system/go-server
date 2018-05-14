@@ -88,7 +88,7 @@ func currentTimeInterval() []TimeInterval {
 	timeinterval := []TimeInterval{}
 	begintime := time.Date(2018, time.Month(4), 1, 9, 0, 0, 0, time.Now().Location())
 	h, err := time.ParseDuration("1h")
-	CheckDBErr(err, "201|生成时间发生错误")
+	CheckNewErr(err, "201|生成时间发生错误")
 	endtime := begintime.Add(h)
 	for i := 0; i < times; i++ {
 		timeinterval = append(timeinterval, TimeInterval{begintime, endtime})

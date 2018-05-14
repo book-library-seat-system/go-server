@@ -11,299 +11,126 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/book-library-seat-system/go-server/entity/seat"
+	. "github.com/book-library-seat-system/go-server/util"
 	"github.com/unrolled/render"
 )
 
-type resjson struct {
-	Information string
+type TimeintervalJson struct {
+	// 时间段
+	seat.TimeInterval
+	// 剩余座位数量
+	Restseatsnum int `json:"restseatsnum"`
 }
 
-/*//meetingjson 创建会议 存放json解析后的数据
-type meetingjson struct {
-	//会议主题
-	Title string
-	//会议参与者
-	Participator []string
-	//开始时间
-	StartTime string
-	//结束时间
-	EndTime string
+// TimeintervalRtnJson 返回时间戳数组
+type TimeintervalRtnJson struct {
+	// 时间段信息
+	Timeintervals []TimeintervalJson `json:"timeintervals,omitempty"`
+	// 错误信息
+	ErrorRtnJson
 }
 
-//增加会议参与者 存放json解析后的数据
-type meetingAddjson struct {
-	//会议参与者
-	Participator []string
+type SeatinfoRtnJson struct {
+	// 座位信息
+	Seatinfo []int `json:"seatinfo,omitempty"`
+	// 错误信息
+	ErrorRtnJson
 }
-
-// 将参与者名字的类型[]string转成string方便数据库存储
-func getParticipatorsName(p []string) string {
-	s := ";"
-	for i := 0; i < len(p); i++ {
-		s = s + p[i] + ";"
-	}
-	fmt.Println(s)
-	return s
-}
-*/
-
- //返回cookie中携带的School字段
-func getCurrentSchool(r *http.Request) string {
-	cookie, _ := r.Cookie("school")
-	if cookie != nil {
-		return cookie.Value
-	} else {
-		fmt.Println("cookie nil")
-	}
-	return "unknown"
-}
-
-//返回cookie中携带的ID字段
-func getCurrentID(r *http.Request) string {
-	cookie, _ := r.Cookie("ID")
-	if cookie != nil {
-		return cookie.Value
-	} else {
-		fmt.Println("cookie nil")
-	}
-	return "unknown"
-}
-
-//getResponseJson 构造http response的json
-func getResponseJson(info string) resjson {
-	return resjson{
-		Information: info}
-}
-
 
 func showTimeIntervalInfoHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		def errResponse(w, formatter)
+		defer errResponse(w, formatter)
+		fmt.Println("showTimeIntervalInfoHandle")
 
-		//解析json数据
-		fmt.Println("showTimeIntervalInfoHandle") 
-		school := getCurrentSchool(r)
+		// 解析cookie数据
+		_, school, err := parseCookie(r)
+		CheckNewErr(err, "7|用户当前未登陆")
+
+		// 从数据库获取数据
 		timeintervals := seat.GetAllTimeInterval(school)
-		count := GetAllUnbookSeatNumber(school string, timeinterval TimeInterval)
-		
-		errorInfo := {
-			"erorcoe": 0,
-			"errorinfomation": "",
-			"timeintervals":
+		rtnjson := TimeintervalRtnJson{}
+		for i := 0; i < len(timeintervals); i++ {
+			rtnjson.Timeintervals = append(rtnjson.Timeintervals, TimeintervalJson{
+				TimeInterval: timeintervals[i],
+				Restseatsnum: len(seat.GetAllSeatinfo(school, timeintervals[i])),
+			})
 		}
-		var timeintervalsInfo string
-		for i := 0; i<len(timeintervals); i++{
-			count := GetAllUnbookSeatNumber(school, timeintervals[i])
-			timeintervalsInfo += timeintervals[i].Begintime+"   "+timeintervals[i].Endtime+"   "+count
-		} 
-		queryIntervalResult, err = errorInfo + timeintervalsInfo
 
-		var info string
-		if err != nil{
-			info = err.Error()
-			formatter.JSON(w, http.StatusOK, getResponseJson(info))
-		}else{
-			info = queryIntervalResult
-			formatter.JSON(w, http.StatusOK, getResponseJson(info))
-		}
+		// 发送json
+		formatter.JSON(w, http.StatusOK, rtnjson)
 	}
 }
 
 func showSeatInfoHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		def errResponse(w, formatter)
+		defer errResponse(w, formatter)
+		fmt.Println("showSeatInfoHandle")
 
-		//解析json数据
-		fmt.Println("showSeatInfoHandle") 
-		school := getCurrentSchool(r)
-		timeintervals := seat.GetAllTimeInterval(school)
-		
-		errorInfo := {
-			"erorcoe": 0,
-			"errorinfomation": ""
-		}
-		var seatInfo int[]
-		for i := 0; i<len(timeintervals); i++{
-			seatInfo[i] := GetAllSeatinfo(school, timeintervals[i])
-		} 
-		querySeatResult, err = errorInfo + seatInfo
+		// 解析json数据
+		err := r.ParseForm()
+		CheckNewErr(err, "203|解析json错误")
+		begintime, err := time.Parse("2006-01-02 15:04:05", r.Form["begintime"][0])
+		CheckNewErr(err, "203|解析json错误")
+		endtime, err := time.Parse("2006-01-02 15:04:05", r.Form["endtime"][0])
+		CheckNewErr(err, "203|解析json错误")
 
-		var info string
-		if err != nil{
-			info = err.Error()
-			formatter.JSON(w, http.StatusOK, getResponseJson(info))
-		}else{
-			info = querySeatResult
-			formatter.JSON(w, http.StatusOK, getResponseJson(info))
+		// 解析cookie数据
+		_, school, err := parseCookie(r)
+		CheckNewErr(err, "7|用户当前未登陆")
+
+		// 从数据库得到数据
+		rtnjson := SeatinfoRtnJson{
+			Seatinfo: seat.GetAllSeatinfo(school, seat.TimeInterval{begintime, endtime}),
 		}
+
+		// 发送json
+		formatter.JSON(w, http.StatusOK, rtnjson)
 	}
 }
 
 func bookSeatHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		defer errResponse(w, formatter)
+		fmt.Println("bookSeatHandle")
 
-		js := praseJSON(r)
-		begintime := js.Get("begintime").MustString()
-		endtime := js.Get("endtime").MustString()
-		seatID := js.Get("seatID").MustString()
+		// 解析json
+		js := parseJSON(r)
+		begintime, err := time.Parse("2006-01-02 15:04:05", js.Get("begintime").MustString())
+		CheckNewErr(err, "203|解析json错误")
+		endtime, err := time.Parse("2006-01-02 15:04:05", js.Get("endtime").MustString())
+		CheckNewErr(err, "203|解析json错误")
 
-		school := getCurrentSchool(r)
-		studentid := getCurrentID(r)
-		timeinterval = TimeInterval{begintime, endtime}
+		// 解析cookie数据
+		studentid, school, err := parseCookie(r)
+		CheckNewErr(err, "7|用户当前未登陆")
 
-		err := seat.BookSeat(school, timeinterval, studentid, seatID)
-
-		if err != nil{
-			info = err.Error()
-			formatter.JSON(w, http.StatusOK, getResponseJson(info))
-		}else{
-			formatter.JSON(w, http.StatusOK, Returnjson{
-				Errorcode:        0,
-				Errorinformation: "",
-			})
-		}
+		// 进行预约
+		seat.BookSeat(school, seat.TimeInterval{begintime, endtime}, studentid, js.Get("seatID").MustInt())
+		formatter.JSON(w, http.StatusOK, nil)
 	}
 }
 
 func unbookSeatHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		defer errResponse(w, formatter)
+		fmt.Println("unbookSeatHandle")
 
-		js := praseJSON(r)
-		begintime := js.Get("begintime").MustString()
-		endtime := js.Get("endtime").MustString()
-		seatID := js.Get("seatID").MustString()
+		// 解析json
+		js := parseJSON(r)
+		begintime, err := time.Parse("2006-01-02 15:04:05", js.Get("begintime").MustString())
+		CheckNewErr(err, "203|解析json错误")
+		endtime, err := time.Parse("2006-01-02 15:04:05", js.Get("endtime").MustString())
+		CheckNewErr(err, "203|解析json错误")
 
-		school := getCurrentSchool(r)
-		studentid := getCurrentID(r)
-		timeinterval = TimeInterval{begintime, endtime}
+		// 解析cookie数据
+		studentid, school, err := parseCookie(r)
+		CheckNewErr(err, "7|用户当前未登陆")
 
-		err := UnbookSeat(school, timeinterval, studentid, seatID)
-
-		if err != nil{
-			info = err.Error()
-			formatter.JSON(w, http.StatusOK, getResponseJson(info))
-		}else{
-			formatter.JSON(w, http.StatusOK, Returnjson{
-				Errorcode:      15,
-			Errorinformation: "Can't unbook another seats",
-			})
-		}
+		// 进行预约
+		seat.UnbookSeat(school, seat.TimeInterval{begintime, endtime}, studentid, js.Get("seatID").MustInt())
+		formatter.JSON(w, http.StatusOK, nil)
 	}
 }
-
-// //创建会议 /v1/meetings
-// func createMeetingHandler(formatter *render.Render) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		fmt.Println("createMeetingHandler")
-// 		body, _ := ioutil.ReadAll(r.Body)
-// 		var meetingj meetingjson
-// 		if err := json.Unmarshal(body, &meetingj); err == nil {
-// 			starttime, _ := time.Parse("2006-01-02 15:04:05", meetingj.StartTime)
-// 			endtime, _ := time.Parse("2006-01-02 15:04:05", meetingj.EndTime)
-// 			fmt.Println(starttime, endtime)
-// 			meeting := meeting.Meeting{Title: meetingj.Title, Host: getCurrentUserNameMeeting(r),
-// 				Participator: getParticipatorsName(meetingj.Participator), StartTime: starttime, EndTime: endtime}
-// 			fmt.Println(meeting)
-// 			err := meetingService.CreateMeeting(meeting)
-// 			var info string
-// 			if err != nil {
-// 				info = err.Error()
-// 				formatter.JSON(w, http.StatusBadRequest, getResponseJson(info))
-// 			} else {
-// 				info = "create meeting succeed"
-// 				formatter.JSON(w, http.StatusOK, getResponseJson(info))
-// 			}
-// 			fmt.Println(info)
-// 		} else {
-// 			fmt.Println(err)
-// 		}
-// 		return
-// 	}
-// }
-
-// //增加会议参与者 /v1/meeting/{title}/adding-participators
-// func addParticipatorsHandler(formatter *render.Render) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		r.ParseForm()
-// 		url := mux.Vars(r)
-// 		title := url["title"]
-// 		body, _ := ioutil.ReadAll(r.Body)
-// 		var meetinga meetingAddjson
-// 		if err := json.Unmarshal(body, &meetinga); err == nil {
-// 			err := meetingService.AddMeetingParticipators(title, meetinga.Participator)
-// 			var info string
-// 			if err != nil {
-// 				info = err.Error()
-// 				formatter.JSON(w, http.StatusBadRequest, getResponseJson(info))
-// 			} else {
-// 				info = "add participators succeed"
-// 				formatter.JSON(w, http.StatusOK, getResponseJson(info))
-// 			}
-// 		} else {
-// 			formatter.JSON(w, http.StatusBadRequest, getResponseJson(err.Error()))
-// 		}
-// 	}
-// }
-
-// //删除会议参与者 /v1/meeting/{title}/deleting-participators
-// func deleteParticipatorsHandler(formatter *render.Render) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 	}
-// }
-
-// //查询会议 /v1/users/query-meeting{?starttime,endtime}
-// func queryMeetingsHandler(formatter *render.Render) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		fmt.Println("queryMeetingsHandler")
-// 		r.ParseForm()
-// 		stime := r.Form["starttime"][0]
-// 		etime := r.Form["endtime"][0]
-// 		starttime, _ := time.Parse("2006-01-02 15:04:05", stime)
-// 		endtime, _ := time.Parse("2006-01-02 15:04:05", etime)
-// 		fmt.Println(stime, etime)
-// 		queryMeetingResult, err := meetingService.QueryMeetings(getCurrentUserNameMeeting(r), starttime, endtime)
-// 		var info string
-// 		if err != nil {
-// 			info = err.Error()
-// 			formatter.JSON(w, http.StatusBadRequest, getResponseJson(info))
-// 		} else {
-// 			info = queryMeetingResult
-// 			formatter.JSON(w, http.StatusOK, getResponseJson(info))
-// 		}
-// 	}
-// }
-
-// //取消会议 /v1/users/cancel-a-meeting/{title}
-// func cancelMeetingHandler(formatter *render.Render) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		fmt.Println("cancelMeetingHandler")
-// 		r.ParseForm()
-// 		url := mux.Vars(r)
-// 		title := url["title"]
-// 		fmt.Println(title)
-// 		err := meetingService.CancelMeeting(title)
-// 		var info string
-// 		if err != nil {
-// 			info = err.Error()
-// 			formatter.JSON(w, http.StatusBadRequest, getResponseJson(info))
-// 		} else {
-// 			info = "cancel meeting succeed"
-// 			formatter.JSON(w, http.StatusOK, getResponseJson(info))
-// 		}
-// 		fmt.Println(info)
-// 	}
-// }
-
-// //退出会议 /v1/users/quit-meeting/{title}
-// func quitMeetingHandler(formatter *render.Render) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 	}
-// }
-
-// //清空会议 /v1/users/cancel-all-meeting
-// func clearAllMeetingsHandler(formatter *render.Render) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		fmt.Println("clear all")
-// 	}
-// }

@@ -13,7 +13,7 @@ func TestBegin(t *testing.T) {
 
 // user测试部分
 func TestUserDao(t *testing.T) {
-	user.TestSave(t)
+	//user.TestSave(t)
 	user.TestFindByID(t)
 	user.TestUpdate(t)
 	user.TestDeleteByID(t)

@@ -8,7 +8,6 @@ Date: 2018年5月4日 星期五 上午10:52
 
 package seat
 
-
 import (
 	"errors"
 
@@ -17,7 +16,6 @@ import (
 
 var userItemsFilePath = "src/github.com/book-library-seat-system/go-server/orm/UserItems.json"
 var currentUserFilePath = "src/github.com/book-library-seat-system/go-server/orm/Current.txt"
-
 
 /*************************************************
 Function: GetAllTimeInterval
@@ -29,8 +27,8 @@ Return: 可用时间间隔数组，以一小时为单位
 func GetAllTimeInterval(school string) []TimeInterval {
 	titems := service.FindBySchool(school)
 	timeintervals := []TimeInterval{}
-	for i := 0; i<len(titems) ;i++{
-		timeintervals[i] = titems[i].TimeInterval
+	for i := 0; i < len(titems); i++ {
+		timeintervals[i] = titems[i].Timeinterval
 	}
 	return timeintervals
 }
@@ -44,9 +42,9 @@ InputParameter:
 Return: 该时间段的座位预约信息，用int数组保存
 *************************************************/
 func GetAllSeatinfo(school string, timeinterval TimeInterval) []int {
-	seatinfo := []int
+	seatinfo := []int{}
 	items := service.FindBySchoolAndTimeInterval(school, timeinterval)
-	for i := 0; i<len(items); i++ {
+	for i := 0; i < len(items); i++ {
 		seatinfo[i] = items[i].Seatinfo
 	}
 	return seatinfo
@@ -61,10 +59,10 @@ InputParameter:
 Return: 未预约的座位数量
 *************************************************/
 func GetAllUnbookSeatNumber(school string, timeinterval TimeInterval) int {
-	count int
+	count := 0
 	items := service.FindBySchoolAndTimeInterval(school, timeinterval)
-    for i := 0; i<len(items) ;i++{
-		if items[i].Seatinfo == 0{
+	for i := 0; i < len(items); i++ {
+		if items[i].Seatinfo == 0 {
 			count++
 		}
 	}
@@ -82,10 +80,7 @@ InputParameter:
 	seatid: 座位ID，即数组下标
 Return: none
 *************************************************/
-func BookSeat(school string, timeinterval TimeInterval, studentid string, seatid string) {
-    if !user.HasStudent(studentid){
-		CheckErr(errors.New("5|学生信息不存在"))
-	}
+func BookSeat(school string, timeinterval TimeInterval, studentid string, seatid int) {
 	items := service.FindBySchoolAndTimeInterval(school, timeinterval)
 	if len(items) <= seatid {
 		CheckErr(errors.New("105|不存在该座位"))
@@ -108,11 +103,8 @@ InputParameter:
 	seatid: 座位ID，即数组下标
 Return: none
 *************************************************/
-func UnbookSeat(school string, timeinterval TimeInterval, studentid string, seatid string) {
-    if !user.HasStudent(studentid){
-		CheckErr(errors.New("5|学生信息不存在"))
-	}
-    items := service.FindBySchoolAndTimeInterval(school, timeinterval)
+func UnbookSeat(school string, timeinterval TimeInterval, studentid string, seatid int) {
+	items := service.FindBySchoolAndTimeInterval(school, timeinterval)
 	if len(items) <= seatid {
 		CheckErr(errors.New("105|不存在该座位"))
 	}
@@ -125,5 +117,4 @@ func UnbookSeat(school string, timeinterval TimeInterval, studentid string, seat
 	items[seatid].StudentID = ""
 	items[seatid].Seatinfo = 1
 	service.UpdateOneSeat(school, timeinterval, items[seatid])
-
 }

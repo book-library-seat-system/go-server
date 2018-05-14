@@ -24,17 +24,6 @@ func init() {
 }
 
 /*************************************************
-Function: HasStudent
-Description: 判断user是否存在
-InputParameter:
-	ID: 学生ID
-Return: 是否存在该学生
-*************************************************/
-func HasStudent(ID string) bool {
-	return service.FindByID(ID) != nil
-}
-
-/*************************************************
 Function: GetStudent
 Description: 返回该学生的所有信息
 InputParameter:
@@ -58,25 +47,25 @@ Return: none
 *************************************************/
 func RegisterStudent(ID string, name string, password string,
 	email string, school string) {
-	if HasStudent(ID) {
-		CheckErr(errors.New("1|ERROR:The user has registered"))
-	}
-
 	pitem := newItem(ID, name, password, email, school)
 	service.Insert(pitem)
-
-	// mylog.AddLog("", "RegisterUser", "", pitem.String())
 }
 
 /*************************************************
 Function: UpdateStudent
 Description: 更新学生信息
 InputParameter:
-	student: 学生更新后的信息
+	ID: 学生ID
+	name: 学生姓名
+	password: 学生密码（哈希过后的密码）
+	email: 学生邮箱
+	school: 学生学校
 Return: none
 *************************************************/
-func UpdateStudent(student Item) {
-	server.Update(student) 
+func UpdateStudent(ID string, name string, password string,
+	email string, school string) {
+	pitem := newItem(ID, name, password, email, school)
+	service.Update(pitem)
 }
 
 /*************************************************
@@ -85,22 +74,15 @@ Description: 学生登录
 InputParameter:
 	ID: 学生ID
 	password: 学生密码（哈希过后）
-Return: none
+Return: 该学生的所有信息
 *************************************************/
-func LoginStudent(ID string, password string) {
+func LoginStudent(ID string, password string) *Item {
 	pitem := GetStudent(ID)
-	// 账号错误
-	if pitem == nil {
-		CheckErr(errors.New("2|ERROR:The user's name not exists"))
-	}
-
 	// 密码错误
 	if pitem.Hashpassword != password {
-		CheckErr(errors.New("3|ERROR:The user's password is wrong"))
+		CheckErr(errors.New("5|学生密码错误"))
 	}
-
-	// 成功登录
-	// mylog.AddLog(name, "LoginUser", "", "")
+	return pitem
 }
 
 /*************************************************
@@ -111,24 +93,5 @@ InputParameter:
 Return: none
 *************************************************/
 func DeleteStudent(ID string) {
-	pitem := GetStudent(ID)
-	// 账号错误
-	if pitem == nil {
-		CheckErr(errors.New("2|ERROR:The user's name not exists"))
-	}
 	service.DeleteByID(ID)
 }
-
-// // LogoutStudent : 登出用户
-// func LogoutStudent(ID string) {
-// 	if !HasStudent(ID) {
-// 		CheckErr(errors.New("4|ERROR:No login user"))
-// 	}
-
-// 	// mylog.AddLog(ID, "LogoutUser", "", "")
-// }
-
-// to string
-// func (u Item) String() string {
-// 	return "{Name:" + u.Name + "  Email:" + u.Email + "  Phone:" + u.School + "}"
-// }

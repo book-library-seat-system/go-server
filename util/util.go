@@ -64,11 +64,16 @@ func CheckErr(err error) {
 }
 
 // CheckDBErr 加工数据库错误，再抛出
-func CheckDBErr(err error, str string) {
+func CheckNewErr(err error, str string) {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		panic(errors.New(str))
 	}
+}
+
+// HandleError 处理错误，并且返回成int，string形式
+func HandleError(err interface{}) (int, string) {
+	return 200, "未定义错误"
 }
 
 // MD5Hash MD5哈希函数
@@ -78,8 +83,8 @@ func MD5Hash(input string) string {
 	return hex.EncodeToString(md5Ctx.Sum(nil))
 }
 
+// ReadFromIniFile 从配置文件中读取信息并返回
 func ReadFromIniFile(blockname string, rowname string) string {
-	// 从配置文件中读取段数
 	file, err := ini.LoadFile(filepath.Join(GetGOPATH(), "/src/github.com/book-library-seat-system/go-server/config.ini"))
 	CheckErr(err)
 	str, ok := file.Get(blockname, rowname)

@@ -43,28 +43,9 @@ func (*TItemsAtomicService) Insert(stitem *STItem) {
 	c := database.C(stitem.School)
 	for i := 0; i < len(stitem.Titems); i++ {
 		err := c.Insert(stitem.Titems[i])
-		CheckDBErr(err, "101|数据库座位信息插入出现错误")
+		CheckNewErr(err, "101|数据库座位信息插入出现错误")
 	}
 }
-
-/*************************************************
-Function: FindAll
-Description: 找到所有Item
-InputParameter: none
-Return: 找到的所有TItems列表
-*************************************************/
-// func (this *TItemsAtomicService) FindAll() []STItem {
-// 	names, err := database.CollectionNames()
-// 	CheckDBErr(err, "103|数据库座位信息查找出现错误")
-// 	stitems := []STItem{}
-// 	for i := 0; i < len(names); i++ {
-// 		stitems = append(stitems, STItem{
-// 			names[i],
-// 			this.FindBySchool(names[i]),
-// 		})
-// 	}
-// 	return stitems
-// }
 
 /*************************************************
 Function: FindBySchool
@@ -77,7 +58,7 @@ func (*TItemsAtomicService) FindBySchool(school string) []TItem {
 	c := database.C(school)
 	titems := []TItem{}
 	err := c.Find(nil).All(&titems)
-	CheckDBErr(err, "103|数据库座位信息查找出现错误")
+	CheckNewErr(err, "103|数据库座位信息查找出现错误")
 	return titems
 }
 
@@ -93,7 +74,7 @@ func (this *TItemsAtomicService) FindBySchoolAndTimeInterval(school string, time
 	c := database.C(school)
 	titem := TItem{}
 	err := c.Find(bson.M{"timeinterval": timeinterval}).One(&titem)
-	CheckDBErr(err, "103|数据库座位信息查找出现错误")
+	CheckNewErr(err, "103|数据库座位信息查找出现错误")
 	return titem.Items
 }
 
@@ -115,7 +96,7 @@ func (*TItemsAtomicService) UpdateAllSeat(
 		bson.M{"timeinterval": timeinterval},
 		bson.M{"$set": bson.M{"items": seats}},
 	)
-	CheckDBErr(err, "102|数据库座位信息更新出现错误")
+	CheckNewErr(err, "102|数据库座位信息更新出现错误")
 }
 
 /*************************************************
@@ -144,7 +125,7 @@ func (*TItemsAtomicService) UpdateOneSeat(
 			},
 		},
 	)
-	CheckDBErr(err, "102|数据库座位信息更新出现错误")
+	CheckNewErr(err, "102|数据库座位信息更新出现错误")
 }
 
 /*************************************************
@@ -156,7 +137,7 @@ Return: none
 *************************************************/
 func (*TItemsAtomicService) DeleteBySchool(school string) {
 	err := database.C(school).DropCollection()
-	CheckDBErr(err, "104|数据库座位信息删除出现错误")
+	CheckNewErr(err, "104|数据库座位信息删除出现错误")
 }
 
 /*************************************************
@@ -170,5 +151,5 @@ Return: none
 func (*TItemsAtomicService) DeleteBySchoolAndTimeInterval(school string, timeinterval TimeInterval) {
 	c := database.C(school)
 	err := c.Remove(bson.M{"timeinterval": timeinterval})
-	CheckDBErr(err, "104|数据库座位信息删除出现错误")
+	CheckNewErr(err, "104|数据库座位信息删除出现错误")
 }
