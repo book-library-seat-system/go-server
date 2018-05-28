@@ -8,7 +8,6 @@ Date: 2018年5月14日 星期一 上午10:25
 package server
 
 import (
-	"errors"
 	"io/ioutil"
 	"net/http"
 
@@ -26,6 +25,10 @@ type ErrorRtnJson struct {
 
 // 解析传过来的JSON
 func parseJSON(r *http.Request) *simplejson.Json {
+	// 解析参数
+	err := r.ParseForm()
+	CheckNewErr(err, "203|解析json错误")
+
 	// 解析json
 	body, err := ioutil.ReadAll(r.Body)
 	CheckNewErr(err, "203|解析json错误")
@@ -36,19 +39,18 @@ func parseJSON(r *http.Request) *simplejson.Json {
 	return temp
 }
 
-// 解析传过来的Cookie
-func parseCookie(r *http.Request) (string, string, error) {
+// 解析传过来的Url
+func parseUrl(r *http.Request) map[string]string {
+	// 解析参数
+	err := r.ParseForm()
+	CheckNewErr(err, "204|解析url参数错误")
+
 	// 解析ID
-	ID, err := r.Cookie("ID")
-	if err != nil {
-		return "", "", errors.New("204|解析cookie错误")
+	rtnmap := make(map[string]string)
+	for k, v := range r.Form {
+		rtnmap[k] = v[0]
 	}
-	// 解析school
-	school, err := r.Cookie("school")
-	if err != nil {
-		return "", "", errors.New("204|解析cookie错误")
-	}
-	return ID.Value, school.Value, nil
+	return rtnmap
 }
 
 // 得到设置的cookie

@@ -9,11 +9,13 @@ Date: 2018年5月4日 星期五 下午1:13
 package server
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/book-library-seat-system/go-server/entity/seat"
+	"github.com/book-library-seat-system/go-server/entity/user"
 	. "github.com/book-library-seat-system/go-server/util"
 	"github.com/unrolled/render"
 )
@@ -48,9 +50,14 @@ func showTimeIntervalInfoHandle(formatter *render.Render) http.HandlerFunc {
 		defer errResponse(w, formatter)
 		fmt.Println("showTimeIntervalInfoHandle")
 
-		// 解析cookie数据
-		_, school, err := parseCookie(r)
-		CheckNewErr(err, "7|用户当前未登陆")
+		// 解析url参数
+		param := parseUrl(r)
+		if _, ok := param["openID"]; !ok {
+			CheckErr(errors.New("7|用户当前未登陆"))
+		}
+
+		// 查询学校
+		school := user.GetStudentsSchool(param["openID"])
 
 		// 从数据库获取数据
 		timeintervals := seat.GetAllTimeInterval(school)
@@ -73,17 +80,16 @@ func showSeatInfoHandle(formatter *render.Render) http.HandlerFunc {
 		defer errResponse(w, formatter)
 		fmt.Println("showSeatInfoHandle")
 
-		// 解析json数据
-		err := r.ParseForm()
-		CheckNewErr(err, "203|解析json错误")
-		begintime, err := time.Parse("2006-01-02 15:04:05", r.Form["begintime"][0])
-		CheckNewErr(err, "203|解析json错误")
-		endtime, err := time.Parse("2006-01-02 15:04:05", r.Form["endtime"][0])
-		CheckNewErr(err, "203|解析json错误")
-
-		// 解析cookie数据
-		_, school, err := parseCookie(r)
-		CheckNewErr(err, "7|用户当前未登陆")
+		// 解析url参数数据
+		param := parseUrl(r)
+		if _, ok := param["openID"]; !ok {
+			CheckErr(errors.New("7|用户当前未登陆"))
+		}
+		begintime, err := time.Parse("2006-01-02 15:04:05", param["begintime"])
+		CheckNewErr(err, "204|解析url参数错误")
+		endtime, err := time.Parse("2006-01-02 15:04:05", param["endtime"])
+		CheckNewErr(err, "204|解析url参数错误")
+		school := user.GetStudentsSchool(param["openID"])
 
 		// 从数据库得到数据
 		rtnjson := SeatinfoRtnJson{
@@ -103,18 +109,16 @@ func bookSeatHandle(formatter *render.Render) http.HandlerFunc {
 
 		// 解析json
 		js := parseJSON(r)
+		studentid := js.Get("openID").MustString()
+		school := user.GetStudentsSchool(studentid)
 		begintime, err := time.Parse("2006-01-02 15:04:05", js.Get("begintime").MustString())
 		CheckNewErr(err, "203|解析json错误")
 		endtime, err := time.Parse("2006-01-02 15:04:05", js.Get("endtime").MustString())
 		CheckNewErr(err, "203|解析json错误")
 
-		// 解析cookie数据
-		studentid, school, err := parseCookie(r)
-		CheckNewErr(err, "7|用户当前未登陆")
-
 		// 进行预约
 		seat.BookSeat(school, seat.TimeInterval{begintime, endtime}, studentid, js.Get("seatID").MustInt())
-		formatter.JSON(w, http.StatusOK, nil)
+		formatter.JSON(w, http.StatusOK, ErrorRtnJson{})
 	}
 }
 
@@ -126,17 +130,32 @@ func unbookSeatHandle(formatter *render.Render) http.HandlerFunc {
 
 		// 解析json
 		js := parseJSON(r)
+		studentid := js.Get("openID").MustString()
+		school := user.GetStudentsSchool(studentid)
 		begintime, err := time.Parse("2006-01-02 15:04:05", js.Get("begintime").MustString())
 		CheckNewErr(err, "203|解析json错误")
 		endtime, err := time.Parse("2006-01-02 15:04:05", js.Get("endtime").MustString())
 		CheckNewErr(err, "203|解析json错误")
 
-		// 解析cookie数据
-		studentid, school, err := parseCookie(r)
-		CheckNewErr(err, "7|用户当前未登陆")
-
 		// 进行预约
 		seat.UnbookSeat(school, seat.TimeInterval{begintime, endtime}, studentid, js.Get("seatID").MustInt())
-		formatter.JSON(w, http.StatusOK, nil)
+		formatter.JSON(w, http.StatusOK, ErrorRtnJson{})
+	}
+}
+
+// 签到座位
+func signinSeatHandle(formatter *render.Render) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		defer errResponse(w, formatter)
+		fmt.Println("signinSeatHandle")
+
+		// 解析json
+		js := parseJSON(r)
+		studentid := js.Get("openID").MustString()
+		school := user.GetStudentsSchool(studentid)
+
+		// 进行签到
+		seat.SigninSeat(school, studentid, js.Get("seatID").MustInt())
+		formatter.JSON(w, http.StatusOK, ErrorRtnJson{})
 	}
 }

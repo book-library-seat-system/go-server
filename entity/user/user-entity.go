@@ -10,13 +10,11 @@ package user
 // Item 用户信息
 type Item struct {
 	// 用户ID，是唯一主键
-	ID string `json:"ID,omitempty" bson:"_id"`
-	// 用户姓名
-	Name string `json:"name,omitempty"`
+	ID string `json:"openID,omitempty" bson:"_id"`
+	// 学生netID
+	NetID string `json:"netID,omitempty"`
 	// hash过的密码
 	Hashpassword string `json:"-"`
-	// 注册用的邮箱
-	Email string `json:"email,omitempty"`
 	// 学生所在学校
 	School string `json:"school,omitempty"`
 	// 学生被警告次数
@@ -24,13 +22,12 @@ type Item struct {
 }
 
 // newItem 新建一个UserItem，并返回指针
-func newItem(ID string, name string, hashpassword string,
-	email string, school string) *Item {
+func newItem(ID string, netID string, hashpassword string,
+	school string) *Item {
 	newUserItem := new(Item)
 	newUserItem.ID = ID
-	newUserItem.Name = name
+	newUserItem.NetID = netID
 	newUserItem.Hashpassword = hashpassword
-	newUserItem.Email = email
 	newUserItem.School = school
 	newUserItem.Violation = 0
 	return newUserItem

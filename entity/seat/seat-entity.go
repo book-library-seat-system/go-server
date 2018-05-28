@@ -98,6 +98,22 @@ func currentTimeInterval() []TimeInterval {
 	return timeinterval
 }
 
+// 得到当前时间所处的时间段
+func getCurrentTimeInterval(t time.Time) TimeInterval {
+	begintime := time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), 0, 0, 0, t.Location())
+	h, _ := time.ParseDuration("1h")
+	endtime := begintime.Add(h)
+	return TimeInterval{begintime, endtime}
+}
+
+// Valid 判断TimeInterval时间段是否有效（8：00-22:00）
+func (t TimeInterval) Valid() bool {
+	nowtime := time.Now()
+	lefttime := time.Date(nowtime.Year(), nowtime.Month(), nowtime.Day(), 7, 59, 0, 0, nowtime.Location())
+	righttime := time.Date(nowtime.Year(), nowtime.Month(), nowtime.Day(), 21, 1, 0, 0, nowtime.Location())
+	return nowtime.After(lefttime) && nowtime.Before(righttime)
+}
+
 // Equal TimeInterval相等比较
 func (t1 TimeInterval) Equal(t2 TimeInterval) bool {
 	return t1.Begintime.Equal(t2.Begintime) &&

@@ -10,6 +10,7 @@ package seat
 
 import (
 	"errors"
+	"time"
 
 	. "github.com/book-library-seat-system/go-server/util"
 )
@@ -115,6 +116,38 @@ func UnbookSeat(school string, timeinterval TimeInterval, studentid string, seat
 		CheckErr(errors.New("107|学生信息与该座位不符"))
 	}
 	items[seatid].StudentID = ""
-	items[seatid].Seatinfo = 1
+	items[seatid].Seatinfo = 0
+	service.UpdateOneSeat(school, timeinterval, items[seatid])
+}
+
+/*************************************************
+Function: SigninSeat
+Description: 签到座位
+InputParameter:
+	school: 所查询的学校名字
+	studentid: 预约学生ID
+	seatid: 座位ID，即数组下标
+Return: none
+*************************************************/
+func SigninSeat(school string, studentid string, seatid int) {
+	// 得到应该签到的时间
+	m10, _ := time.ParseDuration("10m")
+	signtime := time.Now().Add(m10)
+	timeinterval := getCurrentTimeInterval(signtime)
+	if signtime.Minute() > 30 || !timeinterval.Valid() {
+		CheckErr(errors.New("108|签到时间不符"))
+	}
+
+	items := service.FindBySchoolAndTimeInterval(school, timeinterval)
+	if len(items) <= seatid {
+		CheckErr(errors.New("105|不存在该座位"))
+	}
+	if items[seatid].Seatinfo != 1 {
+		CheckErr(errors.New("106|该座位状态不符合要求"))
+	}
+	if items[seatid].StudentID != studentid {
+		CheckErr(errors.New("107|学生信息与该座位不符"))
+	}
+	items[seatid].Seatinfo = 2
 	service.UpdateOneSeat(school, timeinterval, items[seatid])
 }

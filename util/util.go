@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -63,7 +64,7 @@ func CheckErr(err error) {
 	}
 }
 
-// CheckDBErr 加工数据库错误，再抛出
+// CheckDBErr 本地输出原错误，然后抛出自定义错误
 func CheckNewErr(err error, str string) {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -73,7 +74,15 @@ func CheckNewErr(err error, str string) {
 
 // HandleError 处理错误，并且返回成int，string形式
 func HandleError(err interface{}) (int, string) {
-	return 200, "未定义错误"
+	strs := strings.Split(err.(error).Error(), "|")
+	if len(strs) != 2 {
+		return 200, "未定义错误"
+	}
+	errcode, err := strconv.Atoi(strs[0])
+	if err != nil {
+		return 200, "未定义错误"
+	}
+	return errcode, strs[1]
 }
 
 // MD5Hash MD5哈希函数

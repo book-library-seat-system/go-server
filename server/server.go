@@ -42,10 +42,10 @@ func initUserRoutes(mx *mux.Router, formatter *render.Render) {
 	mx.HandleFunc("/v1/test", test(formatter)).Methods("GET")
 	// 创建用户
 	mx.HandleFunc("/v1/users", createStudentHandle(formatter)).Methods("POST")
-	// 登录用户
-	mx.HandleFunc("/v1/user/login", loginStudentHandle(formatter)).Methods("POST")
-	// 登出用户
-	mx.HandleFunc("/v1/user/logout", logoutStudentHandle(formatter)).Methods("GET")
+	// // 登录用户
+	// mx.HandleFunc("/v1/user/login", loginStudentHandle(formatter)).Methods("POST")
+	// // 登出用户
+	// mx.HandleFunc("/v1/user/logout", logoutStudentHandle(formatter)).Methods("GET")
 	// 显示用户信息
 	mx.HandleFunc("/v1/users", listStudentInfoHandle(formatter)).Methods("GET")
 }
@@ -60,6 +60,8 @@ func initSeatRoute(mx *mux.Router, formatter *render.Render) {
 	mx.HandleFunc("/v1/seat/book", bookSeatHandle(formatter)).Methods("POST")
 	// 取消预约座位
 	mx.HandleFunc("/v1/seat/unbook", unbookSeatHandle(formatter)).Methods("POST")
+	// 签到座位
+	mx.HandleFunc("/v1/seat/signin", signinSeatHandle(formatter)).Methods("POST")
 }
 
 func testHandler(formatter *render.Render) http.HandlerFunc {

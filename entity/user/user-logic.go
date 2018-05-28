@@ -24,30 +24,56 @@ func init() {
 }
 
 /*************************************************
+Function: testStudent
+Description: 测试给定的用户ID和密码，判断是否有这个人存在
+InputParameter:
+	ID: 学生ID
+	password: 密码
+	school: 学校
+Return: 学校是否存在学生
+*************************************************/
+func testStudent(ID string, password string, school string) bool {
+	return true
+}
+
+/*************************************************
 Function: GetStudent
 Description: 返回该学生的所有信息
 InputParameter:
-	ID: 学生ID
+	openID: 微信OpenID
 Return: 该学生的所有信息
 *************************************************/
-func GetStudent(ID string) *Item {
-	return service.FindByID(ID)
+func GetStudent(openID string) *Item {
+	return service.FindByID(openID)
+}
+
+/*************************************************
+Function: GetStudentsSchool
+Description: 返回该学生的学校信息
+InputParameter:
+	openID: 微信OpenID
+Return: 该学生的学校信息
+*************************************************/
+func GetStudentsSchool(openID string) string {
+	return service.FindSchoolByID(openID)
 }
 
 /*************************************************
 Function: RegisterStudent
 Description: 注册用户
 InputParameter:
-	ID: 学生ID
-	name: 学生姓名
-	password: 学生密码（哈希过后的密码）
-	email: 学生邮箱
+	openID: 微信OpenID
+	netID: 中山大学netID
+	hashpassword: 学生密码（哈希过后的密码）
 	school: 学生学校
 Return: none
 *************************************************/
-func RegisterStudent(ID string, name string, password string,
-	email string, school string) {
-	pitem := newItem(ID, name, password, email, school)
+func RegisterStudent(openID string, netID string, hashpassword string,
+	school string) {
+	pitem := newItem(openID, netID, hashpassword, school)
+	if !testStudent(netID, hashpassword, school) {
+		CheckErr(errors.New("200|未定义错误"))
+	}
 	service.Insert(pitem)
 }
 
@@ -55,16 +81,15 @@ func RegisterStudent(ID string, name string, password string,
 Function: UpdateStudent
 Description: 更新学生信息
 InputParameter:
-	ID: 学生ID
-	name: 学生姓名
-	password: 学生密码（哈希过后的密码）
-	email: 学生邮箱
+	openID: 微信OpenID
+	netID: 中山大学netID
+	hashpassword: 学生密码（哈希过后的密码）
 	school: 学生学校
 Return: none
 *************************************************/
-func UpdateStudent(ID string, name string, password string,
-	email string, school string) {
-	pitem := newItem(ID, name, password, email, school)
+func UpdateStudent(openID string, netID string, hashpassword string,
+	school string) {
+	pitem := newItem(openID, netID, hashpassword, school)
 	service.Update(pitem)
 }
 
@@ -72,18 +97,17 @@ func UpdateStudent(ID string, name string, password string,
 Function: LoginStudent
 Description: 学生登录
 InputParameter:
-	ID: 学生ID
-	password: 学生密码（哈希过后）
+	openID: 微信OpenID
 Return: 该学生的所有信息
 *************************************************/
-func LoginStudent(ID string, password string) *Item {
-	pitem := GetStudent(ID)
-	// 密码错误
-	if pitem.Hashpassword != password {
-		CheckErr(errors.New("5|学生密码错误"))
-	}
-	return pitem
-}
+// func LoginStudent(ID string) *Item {
+// 	pitem := GetStudent(ID)
+// 	// 密码错误
+// 	// if pitem.Hashpassword != password {
+// 	// 	CheckErr(errors.New("5|学生密码错误"))
+// 	// }
+// 	return pitem
+// }
 
 /*************************************************
 Function: DeleteStudent

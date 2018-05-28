@@ -72,6 +72,20 @@ func (*ItemAtomicService) FindByID(ID string) *Item {
 }
 
 /*************************************************
+Function: FindSchoolByID
+Description: 通过主键ID查询数据
+InputParameter:
+	ID: 学生的ID
+Return: 查询到的学生学校结果
+*************************************************/
+func (*ItemAtomicService) FindSchoolByID(ID string) string {
+	item := &Item{}
+	err := collector.Find(bson.M{"_id": ID}).Select(bson.M{"school": 1}).One(item)
+	CheckNewErr(err, "3|数据库学生信息查找出现错误")
+	return item.School
+}
+
+/*************************************************
 Function: DeleteByID
 Description: 通过主键ID删除数据，是真正的删除
 InputParameter:
