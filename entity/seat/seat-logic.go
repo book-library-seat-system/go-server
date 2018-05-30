@@ -43,10 +43,10 @@ InputParameter:
 Return: 该时间段的座位预约信息，用int数组保存
 *************************************************/
 func GetAllSeatinfo(school string, timeinterval TimeInterval) []int {
-	seatinfo := []int{}
 	items := service.FindBySchoolAndTimeInterval(school, timeinterval)
-	for i := 0; i < len(items); i++ {
-		seatinfo[i] = items[i].Seatinfo
+	seatinfo := make([]int, len(items))
+	for i, item := range items {
+		seatinfo[i] = item.Seatinfo
 	}
 	return seatinfo
 }
@@ -68,7 +68,6 @@ func GetAllUnbookSeatNumber(school string, timeinterval TimeInterval) int {
 		}
 	}
 	return count
-
 }
 
 /*************************************************
@@ -76,22 +75,25 @@ Function: BookSeat
 Description: 预约座位
 InputParameter:
 	school: 所查询的学校名字
-	timeinterval: 查询的时间戳
+	timeinterval: 查询的时间戳，以小时为单位
 	studentid: 预约学生ID
 	seatid: 座位ID，即数组下标
 Return: none
 *************************************************/
 func BookSeat(school string, timeinterval TimeInterval, studentid string, seatid int) {
-	items := service.FindBySchoolAndTimeInterval(school, timeinterval)
-	if len(items) <= seatid {
-		CheckErr(errors.New("105|不存在该座位"))
+	validtimeintervals := splitTimeInterval(timeinterval)
+	items := make([]Item, len(validtimeintervals))
+	for i, validtimeinterval := range validtimeintervals {
+		items[i] = service.FindOneSeat(school, validtimeinterval, seatid)
+		if items[i].Seatinfo != 0 {
+			CheckErr(errors.New("106|该座位状态不符合要求"))
+		}
 	}
-	if items[seatid].Seatinfo != 0 {
-		CheckErr(errors.New("106|该座位状态不符合要求"))
+	for _, item := range items {
+		item.StudentID = studentid
+		item.Seatinfo = 1
+		service.UpdateOneSeat(school, timeinterval, item)
 	}
-	items[seatid].StudentID = studentid
-	items[seatid].Seatinfo = 1
-	service.UpdateOneSeat(school, timeinterval, items[seatid])
 }
 
 /*************************************************
@@ -105,19 +107,22 @@ InputParameter:
 Return: none
 *************************************************/
 func UnbookSeat(school string, timeinterval TimeInterval, studentid string, seatid int) {
-	items := service.FindBySchoolAndTimeInterval(school, timeinterval)
-	if len(items) <= seatid {
-		CheckErr(errors.New("105|不存在该座位"))
+	validtimeintervals := splitTimeInterval(timeinterval)
+	items := make([]Item, len(validtimeintervals))
+	for i, validtimeinterval := range validtimeintervals {
+		items[i] = service.FindOneSeat(school, validtimeinterval, seatid)
+		if items[i].Seatinfo != 1 {
+			CheckErr(errors.New("106|该座位状态不符合要求"))
+		}
+		if items[i].StudentID != studentid {
+			CheckErr(errors.New("107|学生信息与该座位不符"))
+		}
 	}
-	if items[seatid].Seatinfo != 1 {
-		CheckErr(errors.New("106|该座位状态不符合要求"))
+	for _, item := range items {
+		item.StudentID = ""
+		item.Seatinfo = 0
+		service.UpdateOneSeat(school, timeinterval, item)
 	}
-	if items[seatid].StudentID != studentid {
-		CheckErr(errors.New("107|学生信息与该座位不符"))
-	}
-	items[seatid].StudentID = ""
-	items[seatid].Seatinfo = 0
-	service.UpdateOneSeat(school, timeinterval, items[seatid])
 }
 
 /*************************************************
@@ -138,16 +143,29 @@ func SigninSeat(school string, studentid string, seatid int) {
 		CheckErr(errors.New("108|签到时间不符"))
 	}
 
-	items := service.FindBySchoolAndTimeInterval(school, timeinterval)
-	if len(items) <= seatid {
-		CheckErr(errors.New("105|不存在该座位"))
-	}
-	if items[seatid].Seatinfo != 1 {
+	item := service.FindOneSeat(school, timeinterval, seatid)
+	if item.Seatinfo != 1 {
 		CheckErr(errors.New("106|该座位状态不符合要求"))
 	}
-	if items[seatid].StudentID != studentid {
+	if item.StudentID != studentid {
 		CheckErr(errors.New("107|学生信息与该座位不符"))
 	}
-	items[seatid].Seatinfo = 2
-	service.UpdateOneSeat(school, timeinterval, items[seatid])
+	item.Seatinfo = 2
+	service.UpdateOneSeat(school, timeinterval, item)
+
+	for {
+		h, _ := time.ParseDuration("1h")
+		timeinterval.Begintime.Add(h)
+		timeinterval.Endtime.Add(h)
+		if !timeinterval.Valid() {
+			break
+		}
+		item = service.FindOneSeat(school, timeinterval, seatid)
+		if item.Seatinfo == 1 && item.StudentID == studentid {
+			item.Seatinfo = 2
+			service.UpdateOneSeat(school, timeinterval, item)
+		} else {
+			break
+		}
+	}
 }

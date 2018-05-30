@@ -9,6 +9,7 @@ Date: 2018年5月4日 星期五 上午10:17
 package seat
 
 import (
+	"errors"
 	"fmt"
 
 	"labix.org/v2/mgo"
@@ -23,6 +24,7 @@ var database *mgo.Database
 
 func init() {
 	database = mgdb.Mydb.DB("seat")
+	service.Insert(newSTItem("testsunyetsununiversity", 1080))
 	fmt.Println("Seat database init!")
 }
 
@@ -34,16 +36,19 @@ var service = TItemsAtomicService{}
 
 /*************************************************
 Function: Insert
-Description: 保存TItems信息到数据库
+Description: 保存TItems信息到数据库，其中，不会报错
 InputParameter:
 	titems: 要保存的TItems的信息
 Return: none
 *************************************************/
 func (*TItemsAtomicService) Insert(stitem *STItem) {
 	c := database.C(stitem.School)
-	for i := 0; i < len(stitem.Titems); i++ {
-		err := c.Insert(stitem.Titems[i])
-		CheckNewErr(err, "101|数据库座位信息插入出现错误")
+	for _, titem := range stitem.Titems {
+		err := c.Insert(titem)
+		// 如果插入重复，忽略此错误，否则抛出
+		if err.Error()[:6] != "E11000" {
+			CheckNewErr(err, "101|数据库座位信息插入出现错误")
+		}
 	}
 }
 
@@ -68,14 +73,38 @@ Description: 通过两个主键查询数据
 InputParameter:
 	school: 主键1
 	timeinterval: 主键2
-Return: 查找到的座位信息，如果不存在返回nil
+Return: 查找到的座位信息，如果未找到报错
 *************************************************/
 func (this *TItemsAtomicService) FindBySchoolAndTimeInterval(school string, timeinterval TimeInterval) []Item {
 	c := database.C(school)
 	titem := TItem{}
-	err := c.Find(bson.M{"timeinterval": timeinterval}).One(&titem)
+	err := c.Find(bson.M{"_id": timeinterval}).One(&titem)
 	CheckNewErr(err, "103|数据库座位信息查找出现错误")
 	return titem.Items
+}
+
+/*************************************************
+Function: FindOneSeat
+Description: 在数据库中寻找一个座位
+InputParameter:
+	school: 主键1
+	timeinterval: 主键2
+	seatid: 主键3
+Return: 查找的单个座位信息，如果未找到报错
+*************************************************/
+func (this *TItemsAtomicService) FindOneSeat(school string, timeinterval TimeInterval, seatid int) Item {
+	c := database.C(school)
+	item := struct {
+		Items []Item `json:"items"`
+	}{}
+	err := c.Find(bson.M{
+		"_id":   timeinterval,
+		"items": bson.M{"$elemMatch": bson.M{"seatid": seatid}},
+	}).Select(bson.M{"items.$": 1}).One(&item)
+	if err != nil || len(item.Items) != 1 {
+		CheckErr(errors.New("105|不存在该座位"))
+	}
+	return item.Items[0]
 }
 
 /*************************************************
@@ -93,7 +122,7 @@ func (*TItemsAtomicService) UpdateAllSeat(
 	seats []Item) {
 	c := database.C(school)
 	err := c.Update(
-		bson.M{"timeinterval": timeinterval},
+		bson.M{"_id": timeinterval},
 		bson.M{"$set": bson.M{"items": seats}},
 	)
 	CheckNewErr(err, "102|数据库座位信息更新出现错误")
@@ -115,8 +144,8 @@ func (*TItemsAtomicService) UpdateOneSeat(
 	c := database.C(school)
 	err := c.Update(
 		bson.M{
-			"timeinterval": timeinterval,
-			"items":        bson.M{"$elemMatch": bson.M{"seatid": seat.SeatID}},
+			"_id":   timeinterval,
+			"items": bson.M{"$elemMatch": bson.M{"seatid": seat.SeatID}},
 		},
 		bson.M{
 			"$set": bson.M{
@@ -150,6 +179,6 @@ Return: none
 *************************************************/
 func (*TItemsAtomicService) DeleteBySchoolAndTimeInterval(school string, timeinterval TimeInterval) {
 	c := database.C(school)
-	err := c.Remove(bson.M{"timeinterval": timeinterval})
+	err := c.Remove(bson.M{"_id": timeinterval})
 	CheckNewErr(err, "104|数据库座位信息删除出现错误")
 }

@@ -26,6 +26,7 @@ func TestSeatDao(t *testing.T) {
 	// seat.TestFindAll(t)
 	seat.TestFindBySchool(t)
 	seat.TestFindBySchoolAndTimeInterval(t)
+	seat.TestFindOneSeat(t)
 	seat.TestUpdateAllSeat(t)
 	seat.TestUpdateOneSeat(t)
 	seat.TestDeleteBySchoolAndTimeInterval(t)
