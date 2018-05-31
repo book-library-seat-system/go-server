@@ -34,8 +34,21 @@ func errResponse(w http.ResponseWriter, formatter *render.Render) {
 	}
 }
 
-// test
-func test(formatter *render.Render) http.HandlerFunc {
+// testGET
+func testGET(formatter *render.Render) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// 解析url参数
+		param := parseUrl(r)
+		if _, ok := param["openID"]; !ok {
+			CheckErr(errors.New("7|用户当前未登陆"))
+		}
+
+		// 解析json
+		formatter.JSON(w, http.StatusOK, StudentRtnJson{})
+	}
+}
+
+func testPOST(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 	}
 }
