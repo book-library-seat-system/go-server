@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /***************************************************************************
 Copyright(C) 2018
 Author: huziang
@@ -10,14 +11,24 @@ package server
 import (
 	
 	//"net/url"
+=======
+package server
+
+import (
+>>>>>>> 6537222073cb822375c42f0ee03528f8152cd43a
 	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
+<<<<<<< HEAD
 	"net/http/httptest"
 	"strings"
 	"testing"
 	"net/url"
+=======
+	"strings"
+	"testing"
+>>>>>>> 6537222073cb822375c42f0ee03528f8152cd43a
 
 	. "github.com/book-library-seat-system/go-server/util"
 )
@@ -54,6 +65,7 @@ func TesttestGET(t *testing.T) {
 		panic(errors.New("返回错误不正确"))
 	}
 }
+<<<<<<< HEAD
 
 func TesttestPost(t *testing.T){
 	defer func() {
@@ -130,3 +142,5 @@ func TestlistStudentInfoHandle(t *testing.T){
 	}
 
 }
+=======
+>>>>>>> 6537222073cb822375c42f0ee03528f8152cd43a

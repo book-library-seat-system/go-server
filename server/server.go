@@ -32,20 +32,28 @@ func NewServer() *negroni.Negroni {
 
 // 初始化路由，分别初始化User部分和Meeting部分
 func initRoutes(mx *mux.Router, formatter *render.Render) {
+	initTestRoutes(mx, formatter)
 	initUserRoutes(mx, formatter)
 	initSeatRoute(mx, formatter)
 }
 
+// 用于测试部分
+func initTestRoutes(mx *mux.Router, formatter *render.Render) {
+	// 测试get
+	mx.HandleFunc("/v1/test", testGET(formatter)).Methods("GET")
+	// 测试post
+	mx.HandleFunc("/v1/test", testPOST(formatter)).Methods("GET")
+}
+
 // 用户部分
 func initUserRoutes(mx *mux.Router, formatter *render.Render) {
+<<<<<<< HEAD
 	// 测试url
     mx.HandleFunc("/v1/test", test(formatter)).Methods("GET")
+=======
+>>>>>>> 6537222073cb822375c42f0ee03528f8152cd43a
 	// 创建用户
 	mx.HandleFunc("/v1/users", createStudentHandle(formatter)).Methods("POST")
-	// // 登录用户
-	// mx.HandleFunc("/v1/user/login", loginStudentHandle(formatter)).Methods("POST")
-	// // 登出用户
-	// mx.HandleFunc("/v1/user/logout", logoutStudentHandle(formatter)).Methods("GET")
 	// 显示用户信息
 	mx.HandleFunc("/v1/users", listStudentInfoHandle(formatter)).Methods("GET")
 }
