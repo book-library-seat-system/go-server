@@ -34,15 +34,8 @@ func TestSeatDao(t *testing.T) {
 	seat.TestDeleteBySchool(t)
 }
 
-
-/*************************************************
-Function: TestInsert
-Description: 测试插入新项
-InputParameter:
-	student: 新的student
-Return: err 
-*************************************************/
-/*func TestCreateStudent(t *testing.T){
+/*
+func TestCreateStudent(t *testing.T){
 	var userTest user.Item
 	userTest.ID = "111"
 	userTest.NetID = "hmy"
@@ -53,50 +46,28 @@ Return: err
 	if err != nil {
 		t.Errorf("error:%s", err)
 	}  
-}*/
+}
 
-/*************************************************
-Function: TestGetStudent
-Description: 测试返回该学生的所有信息
-InputParameter:
-	openID: 微信OpenID
-Return: err
-*************************************************/
-/*func TestListStudent(t *testing.T){
+func TestListStudent(t *testing.T){
 
 	var openID = "111"
 	err := user.GetStudent(openID)
 	if err != nil {
 		t.Errorf("error:%s", err)
 	} 
-}*/
+}
 
-/*************************************************
-Function: TestShowTimeInterval
-Description: 测试返回时间段
-InputParameter:
-	openID: 微信OpenID
-	GetStudentsSchool: 返回学生学校信息
-Return: err
-*************************************************/
-/*func TestShowTimeInterval(t *testing.T){
+func TestShowTimeInterval(t *testing.T){
 	var openID = "111"
     school = user.GetStudentsSchool(openID)
 	err := seat.GetAllTimeInterval(school)
 	if err != nil {
 		t.Errorf("error:%s", err)
 	} 
-}*/
+}
 
-/*************************************************
-Function: TestGetAllSeatinfo
-Description: 测试得到某时间段所有座位的信息，数组下标代表位置
-InputParameter:
-	school: 所查询的学校名字
-	timeinterval: 查询的时间戳
-Return: err
-*************************************************/
-/*var t1 = time.Now()
+
+var t1 = time.Now()
 var t2 = t1.Add(time.Hour).Add(time.Hour)
 var school = "sysu"
 func TestShowSeat(t *testing.T){
