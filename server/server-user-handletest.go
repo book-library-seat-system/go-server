@@ -1,8 +1,7 @@
-<<<<<<< HEAD
 /***************************************************************************
 Copyright(C) 2018
 Author: huziang
-Description: 每一个handle层函数的测试处理
+Description: 每一个user-handle层函数的测试处理
 Date: 2018年5月4日 星期五 下午1:13
 ****************************************************************************/
 
@@ -10,25 +9,14 @@ package server
 
 import (
 	
-	//"net/url"
-=======
-package server
-
-import (
->>>>>>> 6537222073cb822375c42f0ee03528f8152cd43a
+	"net/url"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
-<<<<<<< HEAD
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"net/url"
-=======
-	"strings"
-	"testing"
->>>>>>> 6537222073cb822375c42f0ee03528f8152cd43a
 
 	. "github.com/book-library-seat-system/go-server/util"
 )
@@ -38,6 +26,7 @@ func init() {
 	ser.Run(":8899")
 }
 
+//测试testGet
 func TesttestGET(t *testing.T) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -65,8 +54,8 @@ func TesttestGET(t *testing.T) {
 		panic(errors.New("返回错误不正确"))
 	}
 }
-<<<<<<< HEAD
 
+//测试testPost
 func TesttestPost(t *testing.T){
 	defer func() {
 		if err := recover(); err != nil {
@@ -94,6 +83,7 @@ func TesttestPost(t *testing.T){
 	}
 }
 
+//测试createStudentHandle
 func TestcreateStudentHandle(t *testing.T){
 
 	http.HandleFunc("/createStudentCheck", createStudentHandle)
@@ -113,6 +103,7 @@ func TestcreateStudentHandle(t *testing.T){
 	
 }
 
+//测试listStudentInfoHandle
 func TestlistStudentInfoHandle(t *testing.T){
     defer func() {
 		if err := recover(); err != nil {
@@ -142,5 +133,3 @@ func TestlistStudentInfoHandle(t *testing.T){
 	}
 
 }
-=======
->>>>>>> 6537222073cb822375c42f0ee03528f8152cd43a
