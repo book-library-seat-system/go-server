@@ -20,18 +20,19 @@ var currentUserFilePath = "src/github.com/book-library-seat-system/go-server/orm
 
 /*************************************************
 Function: GetAllTimeInterval
-Description: 得到所有的时间间隔
+Description: 得到允许预定的时间间隔（默认为两天）
 InputParameter:
 	school: 所查询的学校名字
 Return: 可用时间间隔数组，以一小时为单位
 *************************************************/
 func GetAllTimeInterval(school string) []TimeInterval {
-	titems := service.FindBySchool(school)
-	timeintervals := []TimeInterval{}
-	for i := 0; i < len(titems); i++ {
-		timeintervals[i] = titems[i].Timeinterval
-	}
-	return timeintervals
+	d, _ := time.ParseDuration("24h")
+	// 预定开始于30min后的座位
+	// 预定只允许今明两天的座位
+	nowtimeinterval := getCurrentTimeInterval(time.Now().Add(30 * d))
+	endday := nowtimeinterval.Begintime.Add(2 * d)
+	nowtimeinterval.Endtime = time.Date(endday.Year(), endday.Month(), endday.Day(), 0, 0, 0, 0, endday.Location())
+	return splitTimeInterval(nowtimeinterval)
 }
 
 /*************************************************

@@ -22,8 +22,8 @@ InputParameter:
 Return: 时间段
 *************************************************/
 func getCurrentTimeInterval(t time.Time) TimeInterval {
-	begintime := time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), 0, 0, 0, t.Location())
 	h, _ := time.ParseDuration("1h")
+	begintime := time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), 0, 0, 0, t.Location())
 	endtime := begintime.Add(h)
 	return TimeInterval{begintime, endtime}
 }
@@ -32,9 +32,8 @@ func getCurrentTimeInterval(t time.Time) TimeInterval {
 func splitTimeInterval(timeinterval TimeInterval) []TimeInterval {
 	h, _ := time.ParseDuration("1h")
 	rtntimeintervals := []TimeInterval{}
-	for btime := timeinterval.Begintime; btime.Hour() != timeinterval.Endtime.Hour(); btime.Add(h) {
-		etime := btime
-		etime.Add(h)
+	for btime := timeinterval.Begintime; btime != timeinterval.Endtime; btime = btime.Add(h) {
+		etime := btime.Add(h)
 		newtimeinterval := TimeInterval{btime, etime}
 		if newtimeinterval.Valid() {
 			rtntimeintervals = append(rtntimeintervals, newtimeinterval)
@@ -44,20 +43,19 @@ func splitTimeInterval(timeinterval TimeInterval) []TimeInterval {
 }
 
 // 通过配置文件，读取有效时间段
-func currentTimeInterval() []TimeInterval {
-	timesstr := ReadFromIniFile("TimeInterval", "times")
-	times, _ := strconv.Atoi(timesstr)
+func currentTimeIntervals() []TimeInterval {
+	daysstr := ReadFromIniFile("TimeInterval", "days")
+	days, _ := strconv.Atoi(daysstr)
 
 	// 生成时间段
-	timeintervals := []TimeInterval{}
-	timeinterval := getCurrentTimeInterval(time.Now())
-	for i := 0; i < times; i++ {
-		if timeinterval.Valid() {
-			timeintervals = append(timeintervals, timeinterval)
-		}
-		timeinterval.AddOneHour()
+	mon, _ := time.ParseDuration("24h")
+	nowtimeinterval := getCurrentTimeInterval(time.Now())
+	endday := nowtimeinterval.Begintime
+	for i := 0; i < days; i++ {
+		endday = endday.Add(mon)
 	}
-	return timeintervals
+	nowtimeinterval.Endtime = time.Date(endday.Year(), endday.Month(), endday.Day(), 0, 0, 0, 0, endday.Location())
+	return splitTimeInterval(nowtimeinterval)
 }
 
 // Valid 判断TimeInterval时间段是否有效（8：00-22:00）
@@ -78,8 +76,8 @@ func (t *TimeInterval) AddOneHour() {
 
 // Add 时间相加
 func (t *TimeInterval) Add(d time.Duration) {
-	t.Begintime.Add(d)
-	t.Endtime.Add(d)
+	t.Begintime = t.Begintime.Add(d)
+	t.Endtime = t.Endtime.Add(d)
 }
 
 // Equal TimeInterval相等比较

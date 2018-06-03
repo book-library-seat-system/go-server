@@ -47,10 +47,10 @@ type STItem struct {
 // newItems 生成一个Item数组，id从0开始
 func newItems(seatnumber int) []Item {
 	items := make([]Item, seatnumber)
-	for i, item := range items {
-		item.SeatID = i
-		item.Seatinfo = 0
-		item.StudentID = ""
+	for i := 0; i < seatnumber; i++ {
+		items[i].SeatID = i
+		items[i].Seatinfo = 0
+		items[i].StudentID = ""
 	}
 	return items
 }
@@ -58,7 +58,7 @@ func newItems(seatnumber int) []Item {
 // newTItems 生成一个TItem数组，timeinterval从当前时间段开始，数组数量从配置文件读取
 func newTItems(seatnumber int) []TItem {
 	titems := []TItem{}
-	for _, timeinterval := range currentTimeInterval() {
+	for _, timeinterval := range currentTimeIntervals() {
 		titems = append(titems, TItem{
 			Timeinterval: timeinterval,
 			Items:        newItems(seatnumber),

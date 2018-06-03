@@ -11,10 +11,12 @@ package seat
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 
+	"github.com/book-library-seat-system/go-server/entity/timetrigger"
 	"github.com/book-library-seat-system/go-server/mgdb"
 	. "github.com/book-library-seat-system/go-server/util"
 )
@@ -25,6 +27,14 @@ var database *mgo.Database
 func init() {
 	database = mgdb.Mydb.DB("seat")
 	service.Insert(newSTItem("testsunyetsununiversity", 1080))
+	trigger := timetrigger.New(0, 0, func() {
+		mon, _ := time.ParseDuration("720h")
+		// 添加新的座位，删除旧的座位
+		service.Insert(newSTItem("testsunyetsununiversity", 1080))
+		deletetime := getCurrentTimeInterval(time.Now().Add(-1 * mon))
+		service.DeleteOldTimeInterval("testsunyetsununiversity", deletetime)
+	})
+	trigger.Run()
 	fmt.Println("Seat database init!")
 }
 
@@ -46,7 +56,7 @@ func (*TItemsAtomicService) Insert(stitem *STItem) {
 	for _, titem := range stitem.Titems {
 		err := c.Insert(titem)
 		// 如果插入重复，忽略此错误，否则抛出
-		if err.Error()[:6] != "E11000" {
+		if err != nil && err.Error()[:6] != "E11000" {
 			CheckNewErr(err, "101|数据库座位信息插入出现错误")
 		}
 	}
@@ -180,5 +190,19 @@ Return: none
 func (*TItemsAtomicService) DeleteBySchoolAndTimeInterval(school string, timeinterval TimeInterval) {
 	c := database.C(school)
 	err := c.Remove(bson.M{"_id": timeinterval})
+	CheckNewErr(err, "104|数据库座位信息删除出现错误")
+}
+
+/*************************************************
+Function: DeleteOldTimeInterval
+Description: 删除某个时间段之前的所有信息
+InputParameter:
+	school: 主键1
+	timeinterval: 时间段
+Return: none
+*************************************************/
+func (*TItemsAtomicService) DeleteOldTimeInterval(school string, timeinterval TimeInterval) {
+	c := database.C(school)
+	err := c.Remove(bson.M{"_id": bson.M{"$lt": timeinterval}})
 	CheckNewErr(err, "104|数据库座位信息删除出现错误")
 }

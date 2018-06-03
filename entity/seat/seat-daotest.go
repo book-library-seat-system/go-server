@@ -13,6 +13,7 @@ var whstitem *STItem
 func init() {
 	// 新生成中山大学服务和武汉大学服务
 	sysustitem = newSTItem("testschoolsysu", 10)
+	//fmt.Println(sysustitem)
 	whstitem = newSTItem("testschoolwu", 15)
 }
 
@@ -68,6 +69,7 @@ func TestInsert(t *testing.T) {
 	// 修改其中一项数据
 	sysustitem.Titems[5].Items[5].Seatinfo = 1
 	sysustitem.Titems[5].Items[5].StudentID = "15331111"
+
 	whstitem.Titems[3].Items[10].Seatinfo = 2
 	whstitem.Titems[3].Items[10].StudentID = "15331111"
 
@@ -191,6 +193,18 @@ func TestDeleteBySchoolAndTimeInterval(t *testing.T) {
 	// 删除某个时间段再进行查找
 	service.DeleteBySchoolAndTimeInterval(sysustitem.School, sysustitem.Titems[0].Timeinterval)
 	service.FindBySchoolAndTimeInterval(sysustitem.School, sysustitem.Titems[0].Timeinterval)
+}
+
+func TestDeleteOldTimeInterval(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil && err.(error).Error()[:3] != "103" {
+			t.Error(err)
+		}
+	}()
+
+	// 删除某个时间段再进行查找
+	service.DeleteOldTimeInterval(sysustitem.School, sysustitem.Titems[5].Timeinterval)
+	service.FindBySchoolAndTimeInterval(sysustitem.School, sysustitem.Titems[4].Timeinterval)
 }
 
 func TestDeleteBySchool(t *testing.T) {

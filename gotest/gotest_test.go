@@ -30,6 +30,7 @@ func TestSeatDao(t *testing.T) {
 	seat.TestUpdateAllSeat(t)
 	seat.TestUpdateOneSeat(t)
 	seat.TestDeleteBySchoolAndTimeInterval(t)
+	seat.TestDeleteOldTimeInterval(t)
 	seat.TestDeleteBySchool(t)
 }
 
