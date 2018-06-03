@@ -39,7 +39,7 @@ func initRoutes(mx *mux.Router, formatter *render.Render) {
 // 用户部分
 func initUserRoutes(mx *mux.Router, formatter *render.Render) {
 	// 测试url
-	mx.HandleFunc("/v1/test", test(formatter)).Methods("GET")
+    mx.HandleFunc("/v1/test", test(formatter)).Methods("GET")
 	// 创建用户
 	mx.HandleFunc("/v1/users", createStudentHandle(formatter)).Methods("POST")
 	// // 登录用户
