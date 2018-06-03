@@ -6,10 +6,13 @@ import (
 
 	"github.com/book-library-seat-system/go-server/entity/seat"
 	"github.com/book-library-seat-system/go-server/entity/user"
+	"github.com/book-library-seat-system/go-server/server"
 )
 
 // 测试前
 func TestBegin(t *testing.T) {
+	ser := server.NewServer()
+	ser.Run(":8899")
 }
 
 // user测试部分
@@ -46,7 +49,7 @@ func TestCreateStudent(t *testing.T){
 	err := user.RegisterStudent(userTest)
 	if err != nil {
 		t.Errorf("error:%s", err)
-	}  
+	}
 }
 
 func TestListStudent(t *testing.T){
@@ -55,7 +58,7 @@ func TestListStudent(t *testing.T){
 	err := user.GetStudent(openID)
 	if err != nil {
 		t.Errorf("error:%s", err)
-	} 
+	}
 }
 
 func TestShowTimeInterval(t *testing.T){
@@ -64,7 +67,7 @@ func TestShowTimeInterval(t *testing.T){
 	err := seat.GetAllTimeInterval(school)
 	if err != nil {
 		t.Errorf("error:%s", err)
-	} 
+	}
 }
 
 
@@ -78,7 +81,7 @@ func TestShowSeat(t *testing.T){
 	err := seat.GetAllSeatinfo(school, timeInterval)
 	if err != nil {
 		t.Errorf("error:%s", err)
-	} 
+	}
 }
 
 func TestBookSeat(t *testing.T){
@@ -90,7 +93,7 @@ func TestBookSeat(t *testing.T){
 	err := seat.BookSeat(school, timeInterval, studentid, seatid)
 	if err != nil {
 		t.Errorf("error:%s", err)
-	} 
+	}
 }
 
 func TestUnBookSeat(t *testing.T){
@@ -102,7 +105,7 @@ func TestUnBookSeat(t *testing.T){
 	err := seat.UnbookSeat(school, timeInterval, studentid, seatid)
 	if err != nil {
 		t.Errorf("error:%s", err)
-	} 
+	}
 }
 
 func TestSigninSeat(t *testing.T){
@@ -111,10 +114,10 @@ func TestSigninSeat(t *testing.T){
 	err := seat.SigninSeat(school, studentid, seatid)
 	if err != nil {
 		t.Errorf("error:%s", err)
-	} 
+	}
 }
 */
 // 测试完毕
 func TestEnd(t *testing.T) {
-	
+
 }
