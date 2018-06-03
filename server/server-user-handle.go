@@ -36,6 +36,22 @@ func errResponse(w http.ResponseWriter, formatter *render.Render) {
 
 // testGET
 func testGET(formatter *render.Render) http.HandlerFunc {
+<<<<<<< HEAD
+=======
+	return func(w http.ResponseWriter, r *http.Request) {
+		// 解析url参数
+		param := parseUrl(r)
+		if _, ok := param["openID"]; !ok {
+			CheckErr(errors.New("7|用户当前未登陆"))
+		}
+
+		// 解析json
+		formatter.JSON(w, http.StatusOK, StudentRtnJson{})
+	}
+}
+
+func testPOST(formatter *render.Render) http.HandlerFunc {
+>>>>>>> 6537222073cb822375c42f0ee03528f8152cd43a
 	return func(w http.ResponseWriter, r *http.Request) {
 		// 解析url参数
 		param := parseUrl(r)
@@ -50,6 +66,14 @@ func testGET(formatter *render.Render) http.HandlerFunc {
 
 func testPOST(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// 解析url参数
+		param := parseUrl(r)
+		if _, ok := param["openID"]; !ok {
+			CheckErr(errors.New("7|用户当前未登陆"))
+		}
+
+		// 解析json
+		formatter.JSON(w, http.StatusOK, StudentRtnJson{})
 	}
 }
 
@@ -118,6 +142,8 @@ func listStudentInfoHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
 
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
 		// 解析url参数
 		param := parseUrl(r)
 		if _, ok := param["openID"]; !ok {

@@ -47,6 +47,11 @@ func initTestRoutes(mx *mux.Router, formatter *render.Render) {
 
 // 用户部分
 func initUserRoutes(mx *mux.Router, formatter *render.Render) {
+<<<<<<< HEAD
+	// 测试url
+    mx.HandleFunc("/v1/test", test(formatter)).Methods("GET")
+=======
+>>>>>>> 6537222073cb822375c42f0ee03528f8152cd43a
 	// 创建用户
 	mx.HandleFunc("/v1/users", createStudentHandle(formatter)).Methods("POST")
 	// 显示用户信息
