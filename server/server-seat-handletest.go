@@ -12,29 +12,20 @@ import (
 
 func testShowTimeIntervalInfoHandle(t *testing.T) {
 
-	
 }
 
 func testShowSeatInfoHandle(t *testing.T) {
-
-	
 
 }
 
 func testBookSeatHandle(t *testing.T) {
 
-	
-
 }
 
 func testUnbookSeatHandle(t *testing.T) {
 
-	
-
 }
 
 func testSigninSeatHandle(t *testing.T) {
-
-	
 
 }
