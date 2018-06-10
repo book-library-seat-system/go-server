@@ -39,7 +39,15 @@ type TimeintervalRtnJson struct {
 // SeatinfoRtnJson 返回的座位信息数组
 type SeatinfoRtnJson struct {
 	// 座位信息
-	Seatinfo []int `json:"seatinfo,omitempty"`
+	Seatinfos []int `json:"seatinfos,omitempty"`
+	// 错误信息
+	ErrorRtnJson
+}
+
+// BookedSeatinfoRtnJson 返回的座位信息数组
+type BookedSeatinfoRtnJson struct {
+	// 座位信息
+	Seatinfos []seat.SeatInfo `json:"seatinfos,omitempty"`
 	// 错误信息
 	ErrorRtnJson
 }
@@ -93,7 +101,30 @@ func showSeatInfoHandle(formatter *render.Render) http.HandlerFunc {
 
 		// 从数据库得到数据
 		rtnjson := SeatinfoRtnJson{
-			Seatinfo: seat.GetAllSeatinfo(school, seat.TimeInterval{begintime, endtime}),
+			Seatinfos: seat.GetAllSeatinfo(school, seat.TimeInterval{begintime, endtime}),
+		}
+
+		// 发送json
+		formatter.JSON(w, http.StatusOK, rtnjson)
+	}
+}
+
+// 返回座位信息
+func showBookSeatInfoHandle(formatter *render.Render) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		defer errResponse(w, formatter)
+		fmt.Println("showBookSeatInfoHandle")
+
+		// 解析url参数数据
+		param := parseUrl(r)
+		if _, ok := param["openID"]; !ok {
+			CheckErr(errors.New("7|用户当前未登陆"))
+		}
+		school := user.GetStudentsSchool(param["openID"])
+
+		// 从数据库得到数据
+		rtnjson := BookedSeatinfoRtnJson{
+			Seatinfos: seat.GetBookSeatinfoByStudentID(school, param["openID"]),
 		}
 
 		// 发送json

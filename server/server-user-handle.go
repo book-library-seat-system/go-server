@@ -10,6 +10,7 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/book-library-seat-system/go-server/entity/user"
@@ -28,6 +29,7 @@ type StudentRtnJson struct {
 // 返回错误表单
 func errResponse(w http.ResponseWriter, formatter *render.Render) {
 	if err := recover(); err != nil {
+		fmt.Println(err)
 		var rtn ErrorRtnJson
 		rtn.Errorcode, rtn.Errorinformation = HandleError(err)
 		formatter.JSON(w, 500, rtn)
@@ -37,6 +39,8 @@ func errResponse(w http.ResponseWriter, formatter *render.Render) {
 // testGET
 func testGET(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		defer errResponse(w, formatter)
+
 		// 解析url参数
 		param := parseUrl(r)
 		if _, ok := param["openID"]; !ok {
@@ -50,9 +54,12 @@ func testGET(formatter *render.Render) http.HandlerFunc {
 
 func testPOST(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		defer errResponse(w, formatter)
+
 		// 解析url参数
-		param := parseUrl(r)
-		if _, ok := param["openID"]; !ok {
+		js := parseJSON(r)
+		_, err := js.Get("openID").String()
+		if err != nil {
 			CheckErr(errors.New("7|用户当前未登陆"))
 		}
 

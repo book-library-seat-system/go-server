@@ -17,12 +17,6 @@ import (
 var userItemsFilePath = "src/github.com/book-library-seat-system/go-server/orm/UserItems.json"
 var currentUserFilePath = "src/github.com/book-library-seat-system/go-server/orm/Current.txt"
 
-func init() {
-	// 初始化
-	// userItemsFilePath = filepath.Join(*mylog.GetGOPATH(), userItemsFilePath)
-	// currentUserFilePath = filepath.Join(*mylog.GetGOPATH(), currentUserFilePath)
-}
-
 /*************************************************
 Function: testStudent
 Description: 测试给定的用户ID和密码，判断是否有这个人存在
@@ -94,22 +88,6 @@ func UpdateStudent(openID string, netID string, hashpassword string,
 }
 
 /*************************************************
-Function: LoginStudent
-Description: 学生登录
-InputParameter:
-	openID: 微信OpenID
-Return: 该学生的所有信息
-*************************************************/
-// func LoginStudent(ID string) *Item {
-// 	pitem := GetStudent(ID)
-// 	// 密码错误
-// 	// if pitem.Hashpassword != password {
-// 	// 	CheckErr(errors.New("5|学生密码错误"))
-// 	// }
-// 	return pitem
-// }
-
-/*************************************************
 Function: DeleteStudent
 Description: 通过ID删除用户
 InputParameter:
@@ -118,4 +96,17 @@ Return: none
 *************************************************/
 func DeleteStudent(ID string) {
 	service.DeleteByID(ID)
+}
+
+/*************************************************
+Function: PunishStudent
+Description: 通过ID惩罚一次用户
+InputParameter:
+	ID: 学生ID
+Return: none
+*************************************************/
+func PunishStudent(ID string) {
+	item := service.FindByID(ID)
+	item.Violation++
+	service.Update(item)
 }

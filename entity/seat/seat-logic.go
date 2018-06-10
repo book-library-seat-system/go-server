@@ -18,6 +18,81 @@ import (
 var userItemsFilePath = "src/github.com/book-library-seat-system/go-server/orm/UserItems.json"
 var currentUserFilePath = "src/github.com/book-library-seat-system/go-server/orm/Current.txt"
 
+// isInSigninTime 判断是否在签到时间，如果不是，抛出错误
+func isInSigninTime(t time.Time) TimeInterval {
+	// 如果不在50 - 60, 0 - 30时间段内，则不允许签到
+	signintime := t.Add(10 * time.Minute)
+	timeinterval := getCurrentTimeInterval(signintime)
+	if signintime.Minute() < 40 || !timeinterval.Valid() {
+		CheckErr(errors.New("108|签到时间不符"))
+	}
+	return timeinterval
+}
+
+// isInBookTime 判断是否在预定/取消预定时间，如果不是，抛出错误
+func isInBookTime(t time.Time, timeinterval *TimeInterval) {
+	// 如果不提前15min，则不允许预约
+	booktime := t.Add(15 * time.Minute)
+	if booktime.After(timeinterval.Begintime) {
+		CheckErr(errors.New("109|预约/取消预约时间不符"))
+	}
+}
+
+// insertOne 将一个seatinfo插入seatinfo数组，如果数组中有前一个时间段的，则接在后面
+func insertOne(seatinfos []SeatInfo, newitem *SeatInfo) {
+	for i := 0; i < len(seatinfos); i++ {
+		if seatinfos[i].SeatID == newitem.SeatID &&
+			seatinfos[i].Endtime == newitem.Begintime {
+			seatinfos[i].Endtime = newitem.Endtime
+			return
+		}
+	}
+	seatinfos = append(seatinfos, *newitem)
+}
+
+// updateAllAfterSeat 从某一时间段起一直更新f函数为真的信息
+func updateAllAfterSeat(school string, timeinterval TimeInterval, seatid int, f func(*Item) bool) {
+	item := service.FindOneSeat(school, timeinterval, seatid)
+	for ; f(&item); item = service.FindOneSeat(school, timeinterval, seatid) {
+		service.UpdateOneSeat(school, timeinterval, item)
+		timeinterval.AddOneHour()
+	}
+}
+
+// unbookAllAfterSeat 对接下来的所有时间段，Book -> UnBook
+func unbookAllAfterSeat(school string, timeinterval TimeInterval, seatid int, studentid string) {
+	updateAllAfterSeat(school, timeinterval, seatid, func(item *Item) bool {
+		if item.StudentID == studentid && item.Seatinfo == Book {
+			item.StudentID = ""
+			item.Seatinfo = UnBook
+			return true
+		}
+		return false
+	})
+}
+
+// signinAllAfterSeat 对接下来的所有时间段，Book -> Signin
+func signinAllAfterSeat(school string, timeinterval TimeInterval, seatid int, studentid string) {
+	updateAllAfterSeat(school, timeinterval, seatid, func(item *Item) bool {
+		if item.StudentID == studentid && item.Seatinfo == Book {
+			item.Seatinfo = Signin
+			return true
+		}
+		return false
+	})
+}
+
+// signoutAllAfterSeat 对接下来的所有时间段，Signin -> Signout
+func signoutAllAfterSeat(school string, timeinterval TimeInterval, seatid int, studentid string) {
+	updateAllAfterSeat(school, timeinterval, seatid, func(item *Item) bool {
+		if item.StudentID == studentid && item.Seatinfo == Signin {
+			item.Seatinfo = Signout
+			return true
+		}
+		return false
+	})
+}
+
 /*************************************************
 Function: GetAllTimeInterval
 Description: 得到允许预定的时间间隔（默认为两天）
@@ -26,11 +101,10 @@ InputParameter:
 Return: 可用时间间隔数组，以一小时为单位
 *************************************************/
 func GetAllTimeInterval(school string) []TimeInterval {
-	d, _ := time.ParseDuration("24h")
 	// 预定开始于30min后的座位
 	// 预定只允许今明两天的座位
-	nowtimeinterval := getCurrentTimeInterval(time.Now().Add(30 * d))
-	endday := nowtimeinterval.Begintime.Add(2 * d)
+	nowtimeinterval := getCurrentTimeInterval(time.Now().Add(30 * time.Minute))
+	endday := nowtimeinterval.Begintime.Add(2 * 24 * time.Hour)
 	nowtimeinterval.Endtime = time.Date(endday.Year(), endday.Month(), endday.Day(), 0, 0, 0, 0, endday.Location())
 	return splitTimeInterval(nowtimeinterval)
 }
@@ -64,11 +138,30 @@ func GetAllUnbookSeatNumber(school string, timeinterval TimeInterval) int {
 	count := 0
 	items := service.FindBySchoolAndTimeInterval(school, timeinterval)
 	for i := 0; i < len(items); i++ {
-		if items[i].Seatinfo == 0 {
+		if items[i].Seatinfo == UnBook {
 			count++
 		}
 	}
 	return count
+}
+
+/*************************************************
+Function: GetSeatinfoByStudentID
+Description: 得到某个用户的所有预定的座位信息
+InputParameter:
+	school: 所查询的学校名字
+	studentid: 学生id
+Return: SeatInfo数组（时间是连续的）
+*************************************************/
+func GetBookSeatinfoByStudentID(school string, studentid string) []SeatInfo {
+	titems := service.FindBySchoolAndSeatinfo(school, studentid, Book)
+	seatinfos := []SeatInfo{}
+	for _, titem := range titems {
+		for _, item := range titem.Items {
+			insertOne(seatinfos, newSeatInfo(titem.Timeinterval, item.SeatID))
+		}
+	}
+	return seatinfos
 }
 
 /*************************************************
@@ -82,17 +175,19 @@ InputParameter:
 Return: none
 *************************************************/
 func BookSeat(school string, timeinterval TimeInterval, studentid string, seatid int) {
+	isInBookTime(time.Now(), &timeinterval)
+
 	validtimeintervals := splitTimeInterval(timeinterval)
 	items := make([]Item, len(validtimeintervals))
 	for i, validtimeinterval := range validtimeintervals {
 		items[i] = service.FindOneSeat(school, validtimeinterval, seatid)
-		if items[i].Seatinfo != 0 {
+		if items[i].Seatinfo != UnBook {
 			CheckErr(errors.New("106|该座位状态不符合要求"))
 		}
 	}
 	for _, item := range items {
 		item.StudentID = studentid
-		item.Seatinfo = 1
+		item.Seatinfo = Book
 		service.UpdateOneSeat(school, timeinterval, item)
 	}
 }
@@ -108,11 +203,13 @@ InputParameter:
 Return: none
 *************************************************/
 func UnbookSeat(school string, timeinterval TimeInterval, studentid string, seatid int) {
+	isInBookTime(time.Now(), &timeinterval)
+
 	validtimeintervals := splitTimeInterval(timeinterval)
 	items := make([]Item, len(validtimeintervals))
 	for i, validtimeinterval := range validtimeintervals {
 		items[i] = service.FindOneSeat(school, validtimeinterval, seatid)
-		if items[i].Seatinfo != 1 {
+		if items[i].Seatinfo != Book {
 			CheckErr(errors.New("106|该座位状态不符合要求"))
 		}
 		if items[i].StudentID != studentid {
@@ -121,7 +218,7 @@ func UnbookSeat(school string, timeinterval TimeInterval, studentid string, seat
 	}
 	for _, item := range items {
 		item.StudentID = ""
-		item.Seatinfo = 0
+		item.Seatinfo = UnBook
 		service.UpdateOneSeat(school, timeinterval, item)
 	}
 }
@@ -136,37 +233,19 @@ InputParameter:
 Return: none
 *************************************************/
 func SigninSeat(school string, studentid string, seatid int) {
-	// 得到应该签到的时间
-	m10, _ := time.ParseDuration("10m")
-	signtime := time.Now().Add(m10)
-	timeinterval := getCurrentTimeInterval(signtime)
-	if signtime.Minute() > 30 || !timeinterval.Valid() {
-		CheckErr(errors.New("108|签到时间不符"))
-	}
+	timeinterval := isInSigninTime(time.Now())
 
+	// 测试座位状态
 	item := service.FindOneSeat(school, timeinterval, seatid)
-	if item.Seatinfo != 1 {
+	if item.Seatinfo != Book {
 		CheckErr(errors.New("106|该座位状态不符合要求"))
 	}
 	if item.StudentID != studentid {
 		CheckErr(errors.New("107|学生信息与该座位不符"))
 	}
-	item.Seatinfo = 2
-	service.UpdateOneSeat(school, timeinterval, item)
 
-	for {
-		h, _ := time.ParseDuration("1h")
-		timeinterval.Begintime.Add(h)
-		timeinterval.Endtime.Add(h)
-		if !timeinterval.Valid() {
-			break
-		}
-		item = service.FindOneSeat(school, timeinterval, seatid)
-		if item.Seatinfo == 1 && item.StudentID == studentid {
-			item.Seatinfo = 2
-			service.UpdateOneSeat(school, timeinterval, item)
-		} else {
-			break
-		}
-	}
+	// 进行签到
+	item.Seatinfo = Signin
+	service.UpdateOneSeat(school, timeinterval, item)
+	signinAllAfterSeat(school, *timeinterval.AddOneHour(), seatid, studentid)
 }

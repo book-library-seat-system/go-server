@@ -89,27 +89,6 @@ func TestInsert(t *testing.T) {
 	equalTItems(whstitem.Titems, rtntitems)
 }
 
-// func TestFindAll(t *testing.T) {
-// 	defer func() {
-// 		if err := recover(); err != nil {
-// 			t.Error(err)
-// 		}
-// 	}()
-
-// 	// 测试两者等不等价
-// 	stitems := service.FindAll()
-// 	//fmt.Println(len(stitems))
-// 	if stitems[0].School == whstitem.School {
-// 		equalTItem(whstitem.Titems, stitems[0].Titems)
-// 		equalTItem(sysustitem.Titems, stitems[1].Titems)
-// 	} else if stitems[0].School == sysustitem.School {
-// 		equalTItem(sysustitem.Titems, stitems[0].Titems)
-// 		equalTItem(whstitem.Titems, stitems[1].Titems)
-// 	} else {
-// 		t.Error("FindAll error!")
-// 	}
-// }
-
 func TestFindBySchool(t *testing.T) {
 	defer func() {
 		if err := recover(); err != nil {

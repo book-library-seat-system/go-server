@@ -2,7 +2,7 @@ package gotest
 
 import (
 	//"time"
-	"os"
+
 	"testing"
 
 	"github.com/book-library-seat-system/go-server/entity/seat"
@@ -46,5 +46,4 @@ func TestSeatDao(t *testing.T) {
 
 // 测试完毕
 func TestEnd(t *testing.T) {
-	os.Exit(0)
 }

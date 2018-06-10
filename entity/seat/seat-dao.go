@@ -10,33 +10,15 @@ package seat
 
 import (
 	"errors"
-	"fmt"
-	"time"
 
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 
-	"github.com/book-library-seat-system/go-server/entity/timetrigger"
-	"github.com/book-library-seat-system/go-server/mgdb"
 	. "github.com/book-library-seat-system/go-server/util"
 )
 
 // seat 使用同一个数据库，但是使用不同的表
 var database *mgo.Database
-
-func init() {
-	database = mgdb.Mydb.DB("seat")
-	service.Insert(newSTItem("testsunyetsununiversity", 1080))
-	trigger := timetrigger.New(0, 0, func() {
-		mon, _ := time.ParseDuration("720h")
-		// 添加新的座位，删除旧的座位
-		service.Insert(newSTItem("testsunyetsununiversity", 1080))
-		deletetime := getCurrentTimeInterval(time.Now().Add(-1 * mon))
-		service.DeleteOldTimeInterval("testsunyetsununiversity", deletetime)
-	})
-	trigger.Run()
-	fmt.Println("Seat database init!")
-}
 
 // TItemsAtomicService 一个空类型
 type TItemsAtomicService struct{}
@@ -91,6 +73,23 @@ func (this *TItemsAtomicService) FindBySchoolAndTimeInterval(school string, time
 	err := c.Find(bson.M{"_id": timeinterval}).One(&titem)
 	CheckNewErr(err, "103|数据库座位信息查找出现错误")
 	return titem.Items
+}
+
+/*************************************************
+Function: FindBySchoolAndSeatinfo
+Description: 通过学生id查找关于该学生的信息
+InputParameter:
+	school: 主键
+	studentid: 学生id
+	seatinfo: 座位预约信息
+Return: 查找到的座位信息，如果未找到报错
+*************************************************/
+func (this *TItemsAtomicService) FindBySchoolAndSeatinfo(school string, studentid string, seatinfo int) []TItem {
+	c := database.C(school)
+	titems := []TItem{}
+	err := c.Find(bson.M{"items": bson.M{"studentid": studentid, "seatinfo": seatinfo}}).All(&titems)
+	CheckNewErr(err, "103|数据库座位信息查找出现错误")
+	return titems
 }
 
 /*************************************************

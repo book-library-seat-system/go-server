@@ -14,6 +14,10 @@ import (
 	. "github.com/book-library-seat-system/go-server/util"
 )
 
+func getToday(t time.Time, hour int, minute int) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), hour, minute, 0, 0, t.Location())
+}
+
 /*************************************************
 Function: getCurrentTimeInterval
 Description: 得到给定时间所处的时间段
@@ -22,18 +26,16 @@ InputParameter:
 Return: 时间段
 *************************************************/
 func getCurrentTimeInterval(t time.Time) TimeInterval {
-	h, _ := time.ParseDuration("1h")
-	begintime := time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), 0, 0, 0, t.Location())
-	endtime := begintime.Add(h)
+	begintime := getToday(t, t.Hour(), 0)
+	endtime := begintime.Add(time.Hour)
 	return TimeInterval{begintime, endtime}
 }
 
 // 将TimeInterval划分成1h间隔
 func splitTimeInterval(timeinterval TimeInterval) []TimeInterval {
-	h, _ := time.ParseDuration("1h")
 	rtntimeintervals := []TimeInterval{}
-	for btime := timeinterval.Begintime; btime != timeinterval.Endtime; btime = btime.Add(h) {
-		etime := btime.Add(h)
+	for btime := timeinterval.Begintime; btime != timeinterval.Endtime; btime = btime.Add(time.Hour) {
+		etime := btime.Add(time.Hour)
 		newtimeinterval := TimeInterval{btime, etime}
 		if newtimeinterval.Valid() {
 			rtntimeintervals = append(rtntimeintervals, newtimeinterval)
@@ -48,11 +50,10 @@ func currentTimeIntervals() []TimeInterval {
 	days, _ := strconv.Atoi(daysstr)
 
 	// 生成时间段
-	mon, _ := time.ParseDuration("24h")
 	nowtimeinterval := getCurrentTimeInterval(time.Now())
 	endday := nowtimeinterval.Begintime
 	for i := 0; i < days; i++ {
-		endday = endday.Add(mon)
+		endday = endday.Add(24 * time.Hour)
 	}
 	nowtimeinterval.Endtime = time.Date(endday.Year(), endday.Month(), endday.Day(), 0, 0, 0, 0, endday.Location())
 	return splitTimeInterval(nowtimeinterval)
@@ -69,15 +70,15 @@ func Valid(t time.Time) bool {
 }
 
 // AddOneHour 时间相加1小时
-func (t *TimeInterval) AddOneHour() {
-	h, _ := time.ParseDuration("1h")
-	t.Add(h)
+func (t *TimeInterval) AddOneHour() *TimeInterval {
+	return t.Add(time.Hour)
 }
 
 // Add 时间相加
-func (t *TimeInterval) Add(d time.Duration) {
+func (t *TimeInterval) Add(d time.Duration) *TimeInterval {
 	t.Begintime = t.Begintime.Add(d)
 	t.Endtime = t.Endtime.Add(d)
+	return t
 }
 
 // Equal TimeInterval相等比较

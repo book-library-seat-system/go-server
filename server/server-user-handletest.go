@@ -10,6 +10,7 @@ package server
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -32,6 +33,7 @@ func TesttestGET(t *testing.T) {
 	req, err := http.NewRequest("GET", "http://localhost:8899/v1/test", strings.NewReader(""))
 	CheckErr(err)
 	req.Header.Set("Content-Type", "application/json")
+
 	resp, err := client.Do(req)
 	CheckErr(err)
 	defer resp.Body.Close()
@@ -63,13 +65,12 @@ func TesttestPost(t *testing.T) {
 	postValues.Add("netID", "15331116")
 	resp, err := client.PostForm("http://localhost:8899/v1/test", postValues)
 	CheckErr(err)
-
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	CheckErr(err)
 	errresp := ErrorRtnJson{}
 	json.Unmarshal(body, &errresp)
-
+	fmt.Println(body)
 	// 判断返回的错误信息是否符合要求
 	if errresp.Errorcode != 7 || errresp.Errorinformation != "用户当前未登陆" {
 		panic(errors.New("返回错误不正确"))
