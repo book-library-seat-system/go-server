@@ -42,7 +42,7 @@ func initTestRoutes(mx *mux.Router, formatter *render.Render) {
 	// 测试get
 	mx.HandleFunc("/v1/test", testGET(formatter)).Methods("GET")
 	// 测试post
-	mx.HandleFunc("/v1/test", testPOST(formatter)).Methods("GET")
+	mx.HandleFunc("/v1/test", testPOST(formatter)).Methods("POST")
 }
 
 // 用户部分

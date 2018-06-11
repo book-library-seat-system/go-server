@@ -2,7 +2,6 @@ package seat
 
 import (
 	"errors"
-	"fmt"
 	"testing"
 
 	. "github.com/book-library-seat-system/go-server/util"
@@ -73,7 +72,7 @@ func equalItem(oriitem Item, rtnitem Item) {
 func TestInsert1(t *testing.T) {
 	defer recoverTestErr(t)
 
-	// 修改其中一项数据
+	// 修改其中两项数据
 	sysustitem.Titems[5].Items[5].Seatinfo = 1
 	sysustitem.Titems[5].Items[5].StudentID = "15331111"
 	service.Insert(sysustitem)
@@ -84,7 +83,6 @@ func TestInsert1(t *testing.T) {
 	err := c.Find(nil).All(&rtntitems)
 	CheckErr(err)
 	equalTItems(sysustitem.Titems, rtntitems)
-
 }
 
 // TestInsert2 测试Insert
@@ -129,14 +127,10 @@ func TestFindBySchoolAndTimeInterval(t *testing.T) {
 func TestFindBySchoolAndStudentID(t *testing.T) {
 	defer recoverTestErr(t)
 
-	sysustitem.Titems[5].Items[3].Seatinfo = 1
-	sysustitem.Titems[5].Items[3].StudentID = "15331111"
-	titems := service.FindBySchoolAndStudentID(sysustitem.School, "15331111", 1)
-	fmt.Println(titems)
-	if len(titems) != 1 || titems[0].Timeinterval != sysustitem.Titems[5].Timeinterval || len(titems[0].Items) != 1 {
+	seatinfos := service.FindBySchoolAndStudentID(sysustitem.School, "15331111", 1)
+	if len(seatinfos) != 1 || seatinfos[0].TimeInterval != sysustitem.Titems[5].Timeinterval || seatinfos[0].SeatID != 5 {
 		t.Error(errors.New("FindBySchoolAndStudentID error!"))
 	}
-	equalItem(titems[0].Items[0], sysustitem.Titems[5].Items[5])
 }
 
 // TestFindOneSeat 测试FindOneSeat

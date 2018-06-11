@@ -71,8 +71,8 @@ func (*TItemsAtomicService) FindBySchool(school string) []TItem {
 	c := database.C(school)
 	titems := []TItem{}
 	locks.RLock(school)
-	defer locks.RUnlock(school)
 	err := c.Find(nil).All(&titems)
+	locks.RUnlock(school)
 	CheckNewErr(err, "103|数据库座位信息查找出现错误")
 	return titems
 }
@@ -89,8 +89,8 @@ func (this *TItemsAtomicService) FindBySchoolAndTimeInterval(school string, time
 	c := database.C(school)
 	titem := TItem{}
 	locks.RLock(school)
-	defer locks.RUnlock(school)
 	err := c.Find(bson.M{"_id": timeinterval}).One(&titem)
+	locks.RUnlock(school)
 	CheckNewErr(err, "103|数据库座位信息查找出现错误")
 	return titem.Items
 }
@@ -104,18 +104,22 @@ InputParameter:
 	seatinfo: 座位预约信息
 Return: 查找到的座位信息，如果未找到报错
 *************************************************/
-func (this *TItemsAtomicService) FindBySchoolAndStudentID(school string, studentid string, seatinfo int) []TItem {
+func (this *TItemsAtomicService) FindBySchoolAndStudentID(school string, studentid string, seatinfo int) []SeatInfo {
 	c := database.C(school)
 	titems := []TItem{}
 	locks.RLock(school)
-	defer locks.RUnlock(school)
 	err := c.Find(bson.M{
 		"items": bson.M{"$elemMatch": bson.M{
 			"studentid": studentid,
 			"seatinfo":  seatinfo,
 		}}}).Select(bson.M{"items.$": 1}).All(&titems)
+	locks.RUnlock(school)
 	CheckNewErr(err, "103|数据库座位信息查找出现错误")
-	return titems
+	sis := make([]SeatInfo, len(titems))
+	for i, titem := range titems {
+		sis[i] = *newSeatInfo(titem.Timeinterval, titem.Items[0].SeatID)
+	}
+	return sis
 }
 
 /*************************************************
@@ -133,11 +137,11 @@ func (this *TItemsAtomicService) FindOneSeat(school string, timeinterval TimeInt
 		Items []Item `json:"items"`
 	}{}
 	locks.RLock(school)
-	defer locks.RUnlock(school)
 	err := c.Find(bson.M{
 		"_id":   timeinterval,
 		"items": bson.M{"$elemMatch": bson.M{"seatid": seatid}},
 	}).Select(bson.M{"items.$": 1}).One(&item)
+	locks.RUnlock(school)
 	if err != nil || len(item.Items) != 1 {
 		CheckErr(errors.New("105|不存在该座位"))
 	}
@@ -159,11 +163,11 @@ func (*TItemsAtomicService) UpdateAllSeat(
 	seats []Item) {
 	c := database.C(school)
 	locks.WLock(school)
-	defer locks.WUnlock(school)
 	err := c.Update(
 		bson.M{"_id": timeinterval},
 		bson.M{"$set": bson.M{"items": seats}},
 	)
+	locks.WUnlock(school)
 	CheckNewErr(err, "102|数据库座位信息更新出现错误")
 }
 
@@ -182,7 +186,6 @@ func (*TItemsAtomicService) UpdateOneSeat(
 	seat Item) {
 	c := database.C(school)
 	locks.WLock(school)
-	defer locks.WUnlock(school)
 	err := c.Update(
 		bson.M{
 			"_id":   timeinterval,
@@ -192,6 +195,7 @@ func (*TItemsAtomicService) UpdateOneSeat(
 			"$set": bson.M{"items.$.seatinfo": seat.Seatinfo, "items.$.studentid": seat.StudentID},
 		},
 	)
+	locks.WUnlock(school)
 	CheckNewErr(err, "102|数据库座位信息更新出现错误")
 }
 
@@ -204,8 +208,8 @@ Return: none
 *************************************************/
 func (*TItemsAtomicService) DeleteBySchool(school string) {
 	locks.WLock(school)
-	defer locks.WUnlock(school)
 	err := database.C(school).DropCollection()
+	locks.WUnlock(school)
 	CheckNewErr(err, "104|数据库座位信息删除出现错误")
 }
 
@@ -220,8 +224,8 @@ Return: none
 func (*TItemsAtomicService) DeleteBySchoolAndTimeInterval(school string, timeinterval TimeInterval) {
 	c := database.C(school)
 	locks.WLock(school)
-	defer locks.WUnlock(school)
 	err := c.Remove(bson.M{"_id": timeinterval})
+	locks.WUnlock(school)
 	CheckNewErr(err, "104|数据库座位信息删除出现错误")
 }
 
@@ -236,7 +240,7 @@ Return: none
 func (*TItemsAtomicService) DeleteOldTimeInterval(school string, timeinterval TimeInterval) {
 	c := database.C(school)
 	locks.WLock(school)
-	defer locks.WUnlock(school)
 	err := c.Remove(bson.M{"_id": bson.M{"$lt": timeinterval}})
+	locks.WUnlock(school)
 	CheckNewErr(err, "104|数据库座位信息删除出现错误")
 }

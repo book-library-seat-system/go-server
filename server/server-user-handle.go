@@ -56,8 +56,10 @@ func testPOST(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
 
+		fmt.Println("Inter Post!")
 		// 解析url参数
 		js := parseJSON(r)
+		fmt.Println(*js)
 		_, err := js.Get("openID").String()
 		if err != nil {
 			CheckErr(errors.New("7|用户当前未登陆"))
