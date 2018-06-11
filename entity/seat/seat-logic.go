@@ -154,7 +154,7 @@ InputParameter:
 Return: SeatInfo数组（时间是连续的）
 *************************************************/
 func GetBookSeatinfoByStudentID(school string, studentid string) []SeatInfo {
-	titems := service.FindBySchoolAndSeatinfo(school, studentid, Book)
+	titems := service.FindBySchoolAndStudentID(school, studentid, Book)
 	seatinfos := []SeatInfo{}
 	for _, titem := range titems {
 		for _, item := range titem.Items {

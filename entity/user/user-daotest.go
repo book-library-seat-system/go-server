@@ -17,12 +17,25 @@ func init() {
 	hmy = newItem("33334444", "huangminyi", MD5Hash("333"), "Sun-Yet Sun University")
 }
 
+// recoverTestErr defer此函数检测错误
+func recoverTestErr(t *testing.T) {
+	if err := recover(); err != nil {
+		t.Error(err)
+	}
+}
+
+// equalItem 判断Item相不相同
+func equalItem(item1 *Item, item2 *Item) bool {
+	return item1.ID == item2.ID &&
+		item1.NetID == item2.NetID &&
+		item1.Hashpassword == item2.Hashpassword &&
+		item1.School == item2.School &&
+		item1.Violation == item2.Violation
+}
+
+// TestSave 测试Save
 func TestSave(t *testing.T) {
-	defer func() {
-		if err := recover(); err != nil {
-			t.Error(err)
-		}
-	}()
+	defer recoverTestErr(t)
 
 	// 插入三个节点
 	service.Insert(hza)
@@ -37,42 +50,28 @@ func TestSave(t *testing.T) {
 	}
 }
 
+// TestFindByID 测试FindByID
 func TestFindByID(t *testing.T) {
-	defer func() {
-		if err := recover(); err != nil {
-			t.Error(err)
-		}
-	}()
-
-	equal := func(item1 *Item, item2 *Item) bool {
-		return item1.ID == item2.ID &&
-			item1.NetID == item2.NetID &&
-			item1.Hashpassword == item2.Hashpassword &&
-			item1.School == item2.School &&
-			item1.Violation == item2.Violation
-	}
+	defer recoverTestErr(t)
 
 	// 查看结果是否相同
 	user := service.FindByID(hza.ID)
-	if !equal(user, hza) {
+	if !equalItem(user, hza) {
 		t.Error("Find error!")
 	}
 	user = service.FindByID(lbb.ID)
-	if !equal(user, lbb) {
+	if !equalItem(user, lbb) {
 		t.Error("Find error!")
 	}
 	user = service.FindByID(hmy.ID)
-	if !equal(user, hmy) {
+	if !equalItem(user, hmy) {
 		t.Error("Find error!")
 	}
 }
 
+// TestFindSchoolByID 测试FindSchoolByID
 func TestFindSchoolByID(t *testing.T) {
-	defer func() {
-		if err := recover(); err != nil {
-			t.Error(err)
-		}
-	}()
+	defer recoverTestErr(t)
 
 	// 查看结果是否相同
 	school := service.FindSchoolByID(hza.ID)
@@ -89,12 +88,9 @@ func TestFindSchoolByID(t *testing.T) {
 	}
 }
 
+// TestUpdate 测试Update
 func TestUpdate(t *testing.T) {
-	defer func() {
-		if err := recover(); err != nil {
-			t.Error(err)
-		}
-	}()
+	defer recoverTestErr(t)
 
 	// 修改一个属性，判断数据库有没有修改
 	hza.NetID = "hza"
@@ -105,12 +101,9 @@ func TestUpdate(t *testing.T) {
 	}
 }
 
+// TestDeleteByID 测试DeleteByID
 func TestDeleteByID(t *testing.T) {
-	defer func() {
-		if err := recover(); err != nil {
-			t.Error(err)
-		}
-	}()
+	defer recoverTestErr(t)
 
 	// 删除全部
 	service.DeleteByID(hza.ID)

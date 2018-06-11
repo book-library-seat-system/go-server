@@ -25,11 +25,7 @@ import (
 var logDivPath = "src/github.com/book-library-seat-system/go-server/log"
 var logFilePath = "/" + time.Now().Format("2006-01-02") + ".txt"
 
-func init() {
-	//logDivPath = filepath.Join(*GetGOPATH(), logDivPath)
-}
-
-//GetGOPATH 获得用户环境的gopath
+// GetGOPATH 获得用户环境的gopath
 func GetGOPATH() string {
 	var sp string
 	if runtime.GOOS == "windows" {
@@ -46,6 +42,7 @@ func GetGOPATH() string {
 	return ""
 }
 
+// getFileHandle 获得文件handle
 func getFileHandle() *os.File {
 	abspath := GetGOPATH() + logDivPath + logFilePath
 	if _, err := os.Open(abspath); err != nil {

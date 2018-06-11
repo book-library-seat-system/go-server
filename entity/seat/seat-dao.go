@@ -76,7 +76,7 @@ func (this *TItemsAtomicService) FindBySchoolAndTimeInterval(school string, time
 }
 
 /*************************************************
-Function: FindBySchoolAndSeatinfo
+Function: FindBySchoolAndStudentID
 Description: 通过学生id查找关于该学生的信息
 InputParameter:
 	school: 主键
@@ -84,7 +84,7 @@ InputParameter:
 	seatinfo: 座位预约信息
 Return: 查找到的座位信息，如果未找到报错
 *************************************************/
-func (this *TItemsAtomicService) FindBySchoolAndSeatinfo(school string, studentid string, seatinfo int) []TItem {
+func (this *TItemsAtomicService) FindBySchoolAndStudentID(school string, studentid string, seatinfo int) []TItem {
 	c := database.C(school)
 	titems := []TItem{}
 	err := c.Find(bson.M{"items": bson.M{"studentid": studentid, "seatinfo": seatinfo}}).All(&titems)
