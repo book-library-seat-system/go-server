@@ -2,6 +2,7 @@ package seat
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	. "github.com/book-library-seat-system/go-server/util"
@@ -128,7 +129,10 @@ func TestFindBySchoolAndTimeInterval(t *testing.T) {
 func TestFindBySchoolAndStudentID(t *testing.T) {
 	defer recoverTestErr(t)
 
+	sysustitem.Titems[5].Items[3].Seatinfo = 1
+	sysustitem.Titems[5].Items[3].StudentID = "15331111"
 	titems := service.FindBySchoolAndStudentID(sysustitem.School, "15331111", 1)
+	fmt.Println(titems)
 	if len(titems) != 1 || titems[0].Timeinterval != sysustitem.Titems[5].Timeinterval || len(titems[0].Items) != 1 {
 		t.Error(errors.New("FindBySchoolAndStudentID error!"))
 	}

@@ -52,7 +52,7 @@ type BookedSeatinfoRtnJson struct {
 	ErrorRtnJson
 }
 
-// 返回时间段信息
+// showTimeIntervalInfoHandle 返回时间段信息
 func showTimeIntervalInfoHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
@@ -82,7 +82,7 @@ func showTimeIntervalInfoHandle(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// 返回座位信息
+// showSeatInfoHandle 返回座位信息
 func showSeatInfoHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
@@ -109,7 +109,7 @@ func showSeatInfoHandle(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// 返回座位信息
+// showBookSeatInfoHandle 返回座位信息
 func showBookSeatInfoHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
@@ -132,7 +132,7 @@ func showBookSeatInfoHandle(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// 预约座位
+// bookSeatHandle 预约座位
 func bookSeatHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
@@ -153,7 +153,7 @@ func bookSeatHandle(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// 取消预约座位
+// unbookSeatHandle 取消预约座位
 func unbookSeatHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
@@ -174,7 +174,7 @@ func unbookSeatHandle(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// 签到座位
+// signinSeatHandle 签到座位
 func signinSeatHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)

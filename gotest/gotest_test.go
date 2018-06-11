@@ -3,19 +3,21 @@ package gotest
 import (
 	//"time"
 
+	"os/exec"
 	"testing"
 
 	"github.com/book-library-seat-system/go-server/entity/seat"
 	"github.com/book-library-seat-system/go-server/entity/user"
+	"github.com/book-library-seat-system/go-server/server"
 )
 
-// 测试前
+var cmd *exec.Cmd
+
+// TestBegin 测试前
 func TestBegin(t *testing.T) {
-	// ser := server.NewServer()
-	// ser.Run(":8899")
 }
 
-// user测试部分
+// TestUserDao userdao测试部分
 func TestUserDao(t *testing.T) {
 	user.TestSave(t)
 	user.TestFindByID(t)
@@ -24,12 +26,14 @@ func TestUserDao(t *testing.T) {
 	user.TestDeleteByID(t)
 }
 
-// seat测试部分
+// TestSeatDao seatdao测试部分
 func TestSeatDao(t *testing.T) {
-	seat.TestInsert(t)
+	seat.TestInsert1(t)
+	seat.TestInsert2(t)
 	// seat.TestFindAll(t)
 	seat.TestFindBySchool(t)
 	seat.TestFindBySchoolAndTimeInterval(t)
+	seat.TestFindBySchoolAndStudentID(t)
 	seat.TestFindOneSeat(t)
 	seat.TestUpdateAllSeat(t)
 	seat.TestUpdateOneSeat(t)
@@ -38,12 +42,17 @@ func TestSeatDao(t *testing.T) {
 	seat.TestDeleteBySchool(t)
 }
 
-// UserHandle 测试部分
-// func TestUserHandle(t *testing.T) {
-// 	server.TesttestGET(t)
-// 	server.TesttestPost(t)
-// }
+// TestUserHandle userhandle测试部分
+func TestUserHandle(t *testing.T) {
+	server.TesttestGET(t)
+	server.TesttestPost(t)
+}
 
-// 测试完毕
+// TestSeatHandle seathandle测试部分
+func TestSeatHandle(t *testing.T) {
+
+}
+
+// TestEnd 测试完毕
 func TestEnd(t *testing.T) {
 }

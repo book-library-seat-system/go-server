@@ -10,6 +10,7 @@ package user
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/book-library-seat-system/go-server/mgdb"
 	. "github.com/book-library-seat-system/go-server/util"
@@ -17,10 +18,13 @@ import (
 	"labix.org/v2/mgo/bson"
 )
 
+// user 使用同一个数据库，使用相同的表，表含有一个读写锁
 var collector *mgo.Collection
+var lock *sync.RWMutex
 
 func init() {
 	collector = mgdb.Mydb.DB("user").C("student")
+	lock = new(sync.RWMutex)
 	fmt.Println("User database init!")
 }
 
@@ -38,6 +42,8 @@ InputParameter:
 Return: none
 *************************************************/
 func (*ItemAtomicService) Insert(student *Item) {
+	lock.Lock()
+	defer lock.Unlock()
 	err := collector.Insert(student)
 	CheckNewErr(err, "1|数据库学生信息插入出现错误")
 }
@@ -50,6 +56,8 @@ InputParameter:
 Return: none
 *************************************************/
 func (*ItemAtomicService) Update(student *Item) {
+	lock.Lock()
+	defer lock.Unlock()
 	err := collector.Update(
 		bson.M{"_id": student.ID},
 		bson.M{"$set": student},
@@ -66,6 +74,8 @@ Return: 查询到的学生结果，包含所有的字段
 *************************************************/
 func (*ItemAtomicService) FindByID(ID string) *Item {
 	item := &Item{}
+	lock.RLock()
+	defer lock.RUnlock()
 	err := collector.Find(bson.M{"_id": ID}).One(item)
 	CheckNewErr(err, "3|数据库学生信息查找出现错误")
 	return item
@@ -80,6 +90,8 @@ Return: 查询到的学生学校结果
 *************************************************/
 func (*ItemAtomicService) FindSchoolByID(ID string) string {
 	item := &Item{}
+	lock.RLock()
+	defer lock.RUnlock()
 	err := collector.Find(bson.M{"_id": ID}).Select(bson.M{"school": 1}).One(item)
 	CheckNewErr(err, "3|数据库学生信息查找出现错误")
 	return item.School
@@ -93,6 +105,8 @@ InputParameter:
 Return: none
 *************************************************/
 func (*ItemAtomicService) DeleteByID(ID string) {
+	lock.Lock()
+	defer lock.Unlock()
 	err := collector.Remove(bson.M{"_id": ID})
 	CheckNewErr(err, "4|数据库学生信息删除出现错误")
 }

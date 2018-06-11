@@ -13,21 +13,12 @@ import (
 
 	"github.com/book-library-seat-system/go-server/entity/timetrigger"
 	"github.com/book-library-seat-system/go-server/entity/user"
-	"github.com/book-library-seat-system/go-server/mgdb"
 )
 
 func init() {
-	initDao()
 	addSignoutTrigger("testsunyetsununiversity")
 	addSeatUpdateTrigger("testsunyetsununiversity")
 	//addTestTrigger()
-}
-
-// initDao 初始化数据库
-func initDao() {
-	database = mgdb.Mydb.DB("seat")
-	service.Insert(newSTItem("testsunyetsununiversity", 1080))
-	fmt.Println("Seat database init!")
 }
 
 // addSignoutTrigger 添加签退触发器，每小时的30min生效一次
