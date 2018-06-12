@@ -31,7 +31,9 @@ func parseJSON(r *http.Request) *simplejson.Json {
 	CheckNewErr(err, "203|解析json错误")
 
 	// 解析json
+	fmt.Println("Body:", r.Body)
 	body, err := ioutil.ReadAll(r.Body)
+	fmt.Println("body:", body)
 	CheckNewErr(err, "203|解析json错误")
 	defer r.Body.Close()
 
