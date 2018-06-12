@@ -97,27 +97,26 @@ func (this *TItemsAtomicService) FindBySchoolAndTimeInterval(school string, time
 
 /*************************************************
 Function: FindBySchoolAndStudentID
-Description: 通过学生id查找关于该学生的信息
+Description: 通过学生id查找关于该学生的座位信息
 InputParameter:
 	school: 主键
 	studentid: 学生id
 	seatinfo: 座位预约信息
 Return: 查找到的座位信息，如果未找到报错
 *************************************************/
-func (this *TItemsAtomicService) FindBySchoolAndStudentID(school string, studentid string, seatinfo int) []SeatInfo {
+func (this *TItemsAtomicService) FindBySchoolAndStudentID(school string, studentid string) []SeatInfo {
 	c := database.C(school)
 	titems := []TItem{}
 	locks.RLock(school)
 	err := c.Find(bson.M{
 		"items": bson.M{"$elemMatch": bson.M{
 			"studentid": studentid,
-			"seatinfo":  seatinfo,
 		}}}).Select(bson.M{"items.$": 1}).All(&titems)
 	locks.RUnlock(school)
 	CheckNewErr(err, "103|数据库座位信息查找出现错误")
 	sis := make([]SeatInfo, len(titems))
 	for i, titem := range titems {
-		sis[i] = *newSeatInfo(titem.Timeinterval, titem.Items[0].SeatID)
+		sis[i] = *newSeatInfo(titem.Timeinterval, titem.Items[0])
 	}
 	return sis
 }

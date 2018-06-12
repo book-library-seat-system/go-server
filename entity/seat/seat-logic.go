@@ -148,14 +148,14 @@ func GetAllUnbookSeatNumber(school string, timeinterval TimeInterval) int {
 
 /*************************************************
 Function: GetSeatinfoByStudentID
-Description: 得到某个用户的所有预定的座位信息
+Description: 得到某个用户的所有有关座位信息
 InputParameter:
 	school: 所查询的学校名字
 	studentid: 学生id
 Return: SeatInfo数组（时间是连续的）
 *************************************************/
-func GetBookSeatinfoByStudentID(school string, studentid string) []SeatInfo {
-	seatinfos := service.FindBySchoolAndStudentID(school, studentid, Book)
+func GetSeatinfoByStudentID(school string, studentid string) []SeatInfo {
+	seatinfos := service.FindBySchoolAndStudentID(school, studentid)
 	mergeseatinfos := []SeatInfo{}
 	for _, seatinfo := range seatinfos {
 		insertOne(mergeseatinfos, &seatinfo)
@@ -176,8 +176,6 @@ Return: none
 func BookSeat(school string, timeinterval TimeInterval, studentid string, seatid int) {
 	isInBookTime(time.Now(), &timeinterval)
 
-	fmt.Println("seatid:", seatid)
-
 	validtimeintervals := splitTimeInterval(timeinterval)
 	items := make([]Item, len(validtimeintervals))
 	for i, validtimeinterval := range validtimeintervals {
@@ -187,11 +185,11 @@ func BookSeat(school string, timeinterval TimeInterval, studentid string, seatid
 			CheckErr(errors.New("106|该座位状态不符合要求"))
 		}
 	}
-	for _, item := range items {
-		fmt.Println("item:", item)
-		item.StudentID = studentid
-		item.Seatinfo = Book
-		service.UpdateOneSeat(school, timeinterval, item)
+	for i := 0; i < len(items); i++ {
+		fmt.Println("item:", items[i])
+		items[i].StudentID = studentid
+		items[i].Seatinfo = Book
+		service.UpdateOneSeat(school, validtimeintervals[i], items[i])
 	}
 }
 

@@ -89,6 +89,11 @@ func MD5Hash(input string) string {
 	return hex.EncodeToString(md5Ctx.Sum(nil))
 }
 
+func StringtoInt(str string) int {
+	i, _ := strconv.Atoi(str)
+	return i
+}
+
 // ReadFromIniFile 从配置文件中读取信息并返回
 func ReadFromIniFile(blockname string, rowname string) string {
 	file, err := ini.LoadFile(filepath.Join(GetGOPATH(), "/src/github.com/book-library-seat-system/go-server/config.ini"))

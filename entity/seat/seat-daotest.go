@@ -127,7 +127,7 @@ func TestFindBySchoolAndTimeInterval(t *testing.T) {
 func TestFindBySchoolAndStudentID(t *testing.T) {
 	defer recoverTestErr(t)
 
-	seatinfos := service.FindBySchoolAndStudentID(sysustitem.School, "15331111", 1)
+	seatinfos := service.FindBySchoolAndStudentID(sysustitem.School, "15331111")
 	if len(seatinfos) != 1 || seatinfos[0].TimeInterval != sysustitem.Titems[5].Timeinterval || seatinfos[0].SeatID != 5 {
 		t.Error(errors.New("FindBySchoolAndStudentID error!"))
 	}

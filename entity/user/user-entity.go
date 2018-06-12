@@ -32,3 +32,7 @@ func newItem(ID string, netID string, hashpassword string,
 	newUserItem.Violation = 0
 	return newUserItem
 }
+
+func (item *Item) IsPunished() bool {
+	return item.Violation >= 3
+}

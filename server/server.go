@@ -59,8 +59,6 @@ func initSeatRoute(mx *mux.Router, formatter *render.Render) {
 	mx.HandleFunc("/v1/timeintervals", showTimeIntervalInfoHandle(formatter)).Methods("GET")
 	// 查看座位信息
 	mx.HandleFunc("/v1/seats", showSeatInfoHandle(formatter)).Methods("GET")
-	// 查看预约座位信息
-	mx.HandleFunc("/v1/bookedseat", showBookSeatInfoHandle(formatter)).Methods("GET")
 	// 预约座位
 	mx.HandleFunc("/v1/seat/book", bookSeatHandle(formatter)).Methods("POST")
 	// 取消预约座位

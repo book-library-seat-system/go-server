@@ -77,16 +77,18 @@ func NewTItems(seatnumber int) []TItem {
 type SeatInfo struct {
 	// 时间信息
 	TimeInterval
-	// 座位ID
-	SeatID int `json:"seatid"`
+	// 座位唯一ID
+	SeatID int `json:"seatID"`
+	// 座位状态
+	Seatinfo int `json:"seatinfo"`
 }
 
 // newSeatInfo 生成一个新的SeatInfo
-func newSeatInfo(timeinterval TimeInterval, seatid int) *SeatInfo {
+func newSeatInfo(timeinterval TimeInterval, item Item) *SeatInfo {
 	seatinfo := &SeatInfo{}
-	seatinfo.Begintime = timeinterval.Begintime
-	seatinfo.Endtime = timeinterval.Endtime
-	seatinfo.SeatID = seatid
+	seatinfo.TimeInterval = timeinterval
+	seatinfo.SeatID = item.SeatID
+	seatinfo.Seatinfo = item.Seatinfo
 	return seatinfo
 }
 

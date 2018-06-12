@@ -13,6 +13,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/book-library-seat-system/go-server/entity/seat"
+
 	"github.com/book-library-seat-system/go-server/entity/user"
 	. "github.com/book-library-seat-system/go-server/util"
 	"github.com/unrolled/render"
@@ -20,8 +22,12 @@ import (
 
 // UserReturnjson 用于返回student的模板Json
 type StudentRtnJson struct {
-	// 包含userItem属性
-	user.Item
+	// 学生所在学校
+	School string `json:"school,omitempty"`
+	// 学生被警告次数
+	Violation int `json:"violation,omitempty"`
+	// 预约的座位信息数组
+	Seatinfos []seat.SeatInfo `json:"bookseatinfos,omitempty"`
 	// 包含错误信息
 	ErrorRtnJson
 }
@@ -90,56 +96,12 @@ func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// 登录用户
-// func loginStudentHandle(formatter *render.Render) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		defer errResponse(w, formatter)
-
-// 		// 解析json
-// 		js := parseJSON(r)
-// 		// 解析cookie
-// 		_, _, err := parseCookie(r)
-// 		if err == nil {
-// 			CheckErr(errors.New("6|学生当前处于登陆状态"))
-// 		}
-
-// 		pitem := user.LoginStudent(
-// 			js.Get("ID").MustString(),
-// 			js.Get("password").MustString())
-
-// 		// 如果成功登录，设置cookie
-// 		cookie := getCookie("ID", pitem.ID)
-// 		http.SetCookie(w, cookie)
-// 		cookie = getCookie("school", pitem.School)
-// 		http.SetCookie(w, cookie)
-
-// 		// 返回json信息
-// 		formatter.JSON(w, http.StatusOK, ErrorRtnJson{})
-// 	}
-// }
-
-// 登出用户
-// func logoutStudentHandle(formatter *render.Render) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		defer errResponse(w, formatter)
-
-// 		// 解析cookie
-// 		_, _, err := parseCookie(r)
-// 		CheckNewErr(err, "7|用户当前未登陆")
-
-// 		// 返回json信息
-// 		formatter.JSON(w, http.StatusOK, ErrorRtnJson{})
-// 	}
-// }
-
 // 显示用户信息
 func listStudentInfoHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
 		fmt.Println("listStudentInfoHandle!")
 
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/json")
 		// 解析url参数
 		param := parseUrl(r)
 		if _, ok := param["openID"]; !ok {
@@ -150,7 +112,9 @@ func listStudentInfoHandle(formatter *render.Render) http.HandlerFunc {
 
 		// 解析json
 		formatter.JSON(w, http.StatusOK, StudentRtnJson{
-			Item: *pitem,
+			School:    pitem.School,
+			Violation: pitem.Violation,
+			Seatinfos: seat.GetSeatinfoByStudentID(pitem.School, pitem.ID),
 		})
 	}
 }

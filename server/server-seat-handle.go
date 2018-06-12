@@ -109,29 +109,6 @@ func showSeatInfoHandle(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// showBookSeatInfoHandle 返回座位信息
-func showBookSeatInfoHandle(formatter *render.Render) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		defer errResponse(w, formatter)
-		fmt.Println("showBookSeatInfoHandle")
-
-		// 解析url参数数据
-		param := parseUrl(r)
-		if _, ok := param["openID"]; !ok {
-			CheckErr(errors.New("7|用户当前未登陆"))
-		}
-		school := user.GetStudentsSchool(param["openID"])
-
-		// 从数据库得到数据
-		rtnjson := BookedSeatinfoRtnJson{
-			Seatinfos: seat.GetBookSeatinfoByStudentID(school, param["openID"]),
-		}
-
-		// 发送json
-		formatter.JSON(w, http.StatusOK, rtnjson)
-	}
-}
-
 // bookSeatHandle 预约座位
 func bookSeatHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -140,18 +117,17 @@ func bookSeatHandle(formatter *render.Render) http.HandlerFunc {
 
 		// 解析json
 		js := parseJSON(r)
-		studentid := js.Get("openID").MustString()
-		school := user.GetStudentsSchool(studentid)
+		student := user.GetStudent(js.Get("openID").MustString())
+		if student.IsPunished() {
+			CheckErr(errors.New("110|用户当前被惩罚"))
+		}
 		begintime, err := time.ParseInLocation("2006-01-02 15:04:05", js.Get("begintime").MustString(), time.Now().Location())
 		CheckNewErr(err, "203|解析json错误")
 		endtime, err := time.ParseInLocation("2006-01-02 15:04:05", js.Get("endtime").MustString(), time.Now().Location())
 		CheckNewErr(err, "203|解析json错误")
 
 		// 进行预约
-		ttt := js.Get("seatID")
-		fmt.Println(ttt.Int())
-		fmt.Println(js.Get("seatID").MustInt())
-		seat.BookSeat(school, seat.TimeInterval{begintime, endtime}, studentid, js.Get("seatID").MustInt())
+		seat.BookSeat(student.School, seat.TimeInterval{begintime, endtime}, student.ID, js.Get("seatID").MustInt())
 		formatter.JSON(w, http.StatusOK, ErrorRtnJson{})
 	}
 }
