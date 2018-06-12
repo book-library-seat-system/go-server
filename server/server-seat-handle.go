@@ -93,9 +93,9 @@ func showSeatInfoHandle(formatter *render.Render) http.HandlerFunc {
 		if _, ok := param["openID"]; !ok {
 			CheckErr(errors.New("7|用户当前未登陆"))
 		}
-		begintime, err := time.Parse("2006-01-02 15:04:05", param["begintime"])
+		begintime, err := time.ParseInLocation("2006-01-02 15:04:05", param["begintime"], time.Now().Location())
 		CheckNewErr(err, "204|解析url参数错误")
-		endtime, err := time.Parse("2006-01-02 15:04:05", param["endtime"])
+		endtime, err := time.ParseInLocation("2006-01-02 15:04:05", param["endtime"], time.Now().Location())
 		CheckNewErr(err, "204|解析url参数错误")
 		school := user.GetStudentsSchool(param["openID"])
 
@@ -142,9 +142,9 @@ func bookSeatHandle(formatter *render.Render) http.HandlerFunc {
 		js := parseJSON(r)
 		studentid := js.Get("openID").MustString()
 		school := user.GetStudentsSchool(studentid)
-		begintime, err := time.Parse("2006-01-02 15:04:05", js.Get("begintime").MustString())
+		begintime, err := time.ParseInLocation("2006-01-02 15:04:05", js.Get("begintime").MustString(), time.Now().Location())
 		CheckNewErr(err, "203|解析json错误")
-		endtime, err := time.Parse("2006-01-02 15:04:05", js.Get("endtime").MustString())
+		endtime, err := time.ParseInLocation("2006-01-02 15:04:05", js.Get("endtime").MustString(), time.Now().Location())
 		CheckNewErr(err, "203|解析json错误")
 
 		// 进行预约
@@ -163,9 +163,9 @@ func unbookSeatHandle(formatter *render.Render) http.HandlerFunc {
 		js := parseJSON(r)
 		studentid := js.Get("openID").MustString()
 		school := user.GetStudentsSchool(studentid)
-		begintime, err := time.Parse("2006-01-02 15:04:05", js.Get("begintime").MustString())
+		begintime, err := time.ParseInLocation("2006-01-02 15:04:05", js.Get("begintime").MustString(), time.Now().Location())
 		CheckNewErr(err, "203|解析json错误")
-		endtime, err := time.Parse("2006-01-02 15:04:05", js.Get("endtime").MustString())
+		endtime, err := time.ParseInLocation("2006-01-02 15:04:05", js.Get("endtime").MustString(), time.Now().Location())
 		CheckNewErr(err, "203|解析json错误")
 
 		// 进行预约

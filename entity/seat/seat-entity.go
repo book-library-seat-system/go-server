@@ -62,7 +62,7 @@ type TItem struct {
 }
 
 // newTItems 生成一个TItem数组，timeinterval从当前时间段开始，数组数量从配置文件读取
-func newTItems(seatnumber int) []TItem {
+func NewTItems(seatnumber int) []TItem {
 	titems := []TItem{}
 	for _, timeinterval := range currentTimeIntervals() {
 		titems = append(titems, TItem{
@@ -102,6 +102,6 @@ type STItem struct {
 func newSTItem(school string, seatnumber int) *STItem {
 	newtitems := new(STItem)
 	newtitems.School = school
-	newtitems.Titems = newTItems(seatnumber)
+	newtitems.Titems = NewTItems(seatnumber)
 	return newtitems
 }
