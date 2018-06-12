@@ -109,12 +109,15 @@ func listStudentInfoHandle(formatter *render.Render) http.HandlerFunc {
 		}
 
 		pitem := user.GetStudent(param["openID"])
+		fmt.Println(*pitem)
+		seatinfos := seat.GetSeatinfoByStudentID(pitem.School, pitem.ID)
+		fmt.Println(seatinfos)
 
 		// 解析json
 		formatter.JSON(w, http.StatusOK, StudentRtnJson{
 			School:    pitem.School,
 			Violation: pitem.Violation,
-			Seatinfos: seat.GetSeatinfoByStudentID(pitem.School, pitem.ID),
+			Seatinfos: seatinfos,
 		})
 	}
 }
