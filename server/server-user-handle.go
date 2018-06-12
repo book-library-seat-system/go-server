@@ -74,9 +74,11 @@ func testPOST(formatter *render.Render) http.HandlerFunc {
 func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
+		fmt.Println("createStudentHandle!")
 
 		// 解析json数据
 		js := parseJSON(r)
+		fmt.Println(js)
 		user.RegisterStudent(
 			js.Get("openID").MustString(),
 			js.Get("netID").MustString(),
@@ -134,6 +136,7 @@ func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 func listStudentInfoHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
+		fmt.Println("listStudentInfoHandle!")
 
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
