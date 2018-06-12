@@ -114,8 +114,10 @@ func (this *TItemsAtomicService) FindBySchoolAndStudentID(school string, student
 	CheckNewErr(err, "103|数据库座位信息查找出现错误")
 	sis := make([]SeatInfo, len(titems))
 	for i, titem := range titems {
+		fmt.Println(i, titem)
 		sis[i] = *newSeatInfo(titem.Timeinterval, titem.Items[0])
 	}
+	fmt.Println(sis)
 	return sis
 }
 
