@@ -32,7 +32,7 @@ func testShowTimeIntervalInfoHandle(t *testing.T) {
 	CheckErr(err)
 	defer resp.Body.Close()
 
-	// 接收响应并且读取body信息
+    // 接收响应并且读取body信息
 	body, err := ioutil.ReadAll(resp.Body)
 	CheckErr(err)
 	errresp := ErrorRtnJson{}
@@ -45,41 +45,17 @@ func testShowTimeIntervalInfoHandle(t *testing.T) {
 }
 
 func testShowSeatInfoHandle(t *testing.T) {
-	// defer func() {
-	// 	if err := recover(); err != nil {
-	// 		t.Error(err)
-	// 	}
-	// }()
-
-	//发送http请求
+    
 }
 
 func testBookSeatHandle(t *testing.T) {
-	// defer func() {
-	// 	if err := recover(); err != nil {
-	// 		t.Error(err)
-	// 	}
-	// }()
-
-	//发送http请求
+	
 }
 
 func testUnbookSeatHandle(t *testing.T) {
-	// defer func() {
-	// 	if err := recover(); err != nil {
-	// 		t.Error(err)
-	// 	}
-	// }()
-
-	//发送http请求
+	
 }
 
 func testSigninSeatHandle(t *testing.T) {
-	// defer func() {
-	// 	if err := recover(); err != nil {
-	// 		t.Error(err)
-	// 	}
-	// }()
-
-	//发送http请求
+	
 }
