@@ -10,6 +10,7 @@ package seat
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	. "github.com/book-library-seat-system/go-server/util"
@@ -32,8 +33,10 @@ func isInSigninTime(t time.Time) TimeInterval {
 // isInBookTime 判断是否在预定/取消预定时间，如果不是，抛出错误
 func isInBookTime(t time.Time, timeinterval *TimeInterval) {
 	// 如果不提前15min，则不允许预约
-	booktime := t.Add(15 * time.Minute)
-	if booktime.After(timeinterval.Begintime) {
+	premittime := t.Add(15 * time.Minute)
+	fmt.Println("Nowtime:", premittime)
+	fmt.Println("Booktime:", timeinterval.Begintime)
+	if premittime.After(timeinterval.Begintime) {
 		CheckErr(errors.New("109|预约/取消预约时间不符"))
 	}
 }
