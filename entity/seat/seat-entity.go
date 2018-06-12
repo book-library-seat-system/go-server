@@ -34,6 +34,17 @@ type Item struct {
 	StudentID string `json:"studentID"`
 }
 
+// newItems 生成一个Item数组，id从0开始
+func newItems(seatnumber int) []Item {
+	items := make([]Item, seatnumber)
+	for i := 0; i < seatnumber; i++ {
+		items[i].SeatID = i
+		items[i].Seatinfo = UnBook
+		items[i].StudentID = ""
+	}
+	return items
+}
+
 // TimeInterval 时间间隔
 type TimeInterval struct {
 	// 开始时间
@@ -50,20 +61,24 @@ type TItem struct {
 	Items []Item `json:"item"`
 }
 
+// newTItems 生成一个TItem数组，timeinterval从当前时间段开始，数组数量从配置文件读取
+func newTItems(seatnumber int) []TItem {
+	titems := []TItem{}
+	for _, timeinterval := range currentTimeIntervals() {
+		titems = append(titems, TItem{
+			Timeinterval: timeinterval,
+			Items:        newItems(seatnumber),
+		})
+	}
+	return titems
+}
+
 // SeatInfo 包含时间段信息和座位ID，用于显示
 type SeatInfo struct {
 	// 时间信息
 	TimeInterval
 	// 座位ID
 	SeatID int `json:"seatid"`
-}
-
-// STItem 包含学校姓名和该学校所有的座位信息
-type STItem struct {
-	// 所属学校，主键
-	School string `json:"school"`
-	// 该学校所有可用时间段和座位信息
-	Titems []TItem `json:"titems"`
 }
 
 // newSeatInfo 生成一个新的SeatInfo
@@ -75,27 +90,12 @@ func newSeatInfo(timeinterval TimeInterval, seatid int) *SeatInfo {
 	return seatinfo
 }
 
-// newItems 生成一个Item数组，id从0开始
-func newItems(seatnumber int) []Item {
-	items := make([]Item, seatnumber)
-	for i := 0; i < seatnumber; i++ {
-		items[i].SeatID = i
-		items[i].Seatinfo = UnBook
-		items[i].StudentID = ""
-	}
-	return items
-}
-
-// newTItems 生成一个TItem数组，timeinterval从当前时间段开始，数组数量从配置文件读取
-func newTItems(seatnumber int) []TItem {
-	titems := []TItem{}
-	for _, timeinterval := range currentTimeIntervals() {
-		titems = append(titems, TItem{
-			Timeinterval: timeinterval,
-			Items:        newItems(seatnumber),
-		})
-	}
-	return titems
+// STItem 包含学校姓名和该学校所有的座位信息
+type STItem struct {
+	// 所属学校，主键
+	School string `json:"school"`
+	// 该学校所有可用时间段和座位信息
+	Titems []TItem `json:"titems"`
 }
 
 // newSTItem 生成一个STItem
