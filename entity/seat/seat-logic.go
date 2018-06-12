@@ -10,7 +10,6 @@ package seat
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	. "github.com/book-library-seat-system/go-server/util"
@@ -181,13 +180,11 @@ func BookSeat(school string, timeinterval TimeInterval, studentid string, seatid
 	items := make([]Item, len(validtimeintervals))
 	for i, validtimeinterval := range validtimeintervals {
 		items[i] = service.FindOneSeat(school, validtimeinterval, seatid)
-		fmt.Println(i, items[i])
 		if items[i].Seatinfo != UnBook {
 			CheckErr(errors.New("106|该座位状态不符合要求"))
 		}
 	}
 	for i := 0; i < len(items); i++ {
-		fmt.Println("item:", items[i])
 		items[i].StudentID = studentid
 		items[i].Seatinfo = Book
 		service.UpdateOneSeat(school, validtimeintervals[i], items[i])
