@@ -24,6 +24,11 @@ type ErrorRtnJson struct {
 	Errorinformation string `json:"errorinformation"`
 }
 
+// isLogin 判断用户是否
+func isLogin() {
+
+}
+
 // 解析传过来的JSON
 func parseJSON(r *http.Request) *simplejson.Json {
 	// 解析参数
@@ -31,13 +36,16 @@ func parseJSON(r *http.Request) *simplejson.Json {
 	CheckNewErr(err, "203|解析json错误")
 
 	// 解析json
-	fmt.Println("Body:", r.Body)
 	body, err := ioutil.ReadAll(r.Body)
-	fmt.Println("body:", body)
 	CheckNewErr(err, "203|解析json错误")
 	defer r.Body.Close()
 
 	temp, err := simplejson.NewJson(body)
+	m, _ := temp.Map()
+	fmt.Println("Post:")
+	for k, v := range m {
+		fmt.Println(k, v)
+	}
 	CheckNewErr(err, "203|解析json错误")
 	return temp
 }
@@ -51,9 +59,9 @@ func parseUrl(r *http.Request) map[string]string {
 	// 解析ID
 	rtnmap := make(map[string]string)
 	for k, v := range r.Form {
-		fmt.Println(k, ":", v[0])
 		rtnmap[k] = v[0]
 	}
+	fmt.Println("Get:", rtnmap)
 	return rtnmap
 }
 
