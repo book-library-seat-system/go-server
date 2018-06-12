@@ -39,7 +39,7 @@ type TimeintervalRtnJson struct {
 // SeatinfoRtnJson 返回的座位信息数组
 type SeatinfoRtnJson struct {
 	// 座位信息
-	Seatinfos []int `json:"seatinfos,omitempty"`
+	Seatinfos []bool `json:"seatinfos,omitempty"`
 	// 错误信息
 	ErrorRtnJson
 }
