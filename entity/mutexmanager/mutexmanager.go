@@ -7,7 +7,9 @@ Date: 2018年6月11日 星期一 上午11:00
 
 package mutexmanager
 
-import "sync"
+import (
+	"sync"
+)
 
 // RWMutexManager 读写锁管理员
 type RWMutexManager struct {
@@ -35,24 +37,32 @@ func (manager *RWMutexManager) GetLock(name string) *sync.RWMutex {
 
 // RLock reader上锁
 func (manager *RWMutexManager) RLock(name string) *RWMutexManager {
-	manager.Locks[name].RLock()
+	if lock, ok := manager.Locks[name]; ok {
+		lock.RLock()
+	}
 	return manager
 }
 
 // RUnlock reader解锁
 func (manager *RWMutexManager) RUnlock(name string) *RWMutexManager {
-	manager.Locks[name].RUnlock()
+	if lock, ok := manager.Locks[name]; ok {
+		lock.RUnlock()
+	}
 	return manager
 }
 
 // WLock writer上锁
 func (manager *RWMutexManager) WLock(name string) *RWMutexManager {
-	manager.Locks[name].Lock()
+	if lock, ok := manager.Locks[name]; ok {
+		lock.Lock()
+	}
 	return manager
 }
 
 // WUnlock writer解锁
 func (manager *RWMutexManager) WUnlock(name string) *RWMutexManager {
-	manager.Locks[name].Unlock()
+	if lock, ok := manager.Locks[name]; ok {
+		lock.Unlock()
+	}
 	return manager
 }
