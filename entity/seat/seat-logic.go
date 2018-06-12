@@ -34,8 +34,6 @@ func isInSigninTime(t time.Time) TimeInterval {
 func isInBookTime(t time.Time, timeinterval *TimeInterval) {
 	// 如果不提前15min，则不允许预约
 	premittime := t.Add(15 * time.Minute)
-	fmt.Println("Nowtime:", premittime)
-	fmt.Println("Booktime:", timeinterval.Begintime)
 	if premittime.After(timeinterval.Begintime) {
 		CheckErr(errors.New("109|预约/取消预约时间不符"))
 	}
@@ -178,15 +176,19 @@ Return: none
 func BookSeat(school string, timeinterval TimeInterval, studentid string, seatid int) {
 	isInBookTime(time.Now(), &timeinterval)
 
+	fmt.Println("seatid:", seatid)
+
 	validtimeintervals := splitTimeInterval(timeinterval)
 	items := make([]Item, len(validtimeintervals))
 	for i, validtimeinterval := range validtimeintervals {
 		items[i] = service.FindOneSeat(school, validtimeinterval, seatid)
+		fmt.Println(i, items[i])
 		if items[i].Seatinfo != UnBook {
 			CheckErr(errors.New("106|该座位状态不符合要求"))
 		}
 	}
 	for _, item := range items {
+		fmt.Println("item:", item)
 		item.StudentID = studentid
 		item.Seatinfo = Book
 		service.UpdateOneSeat(school, timeinterval, item)
