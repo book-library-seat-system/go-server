@@ -110,14 +110,11 @@ func (this *TItemsAtomicService) FindBySchoolAndStudentID(school string, student
 	locks.RLock(school)
 	err := c.Find(bson.M{"items.studentid": studentid}).Select(bson.M{"items.$": 1}).All(&titems)
 	locks.RUnlock(school)
-	fmt.Println("Dao:", titems)
 	CheckNewErr(err, "103|数据库座位信息查找出现错误")
 	sis := make([]SeatInfo, len(titems))
 	for i, titem := range titems {
-		fmt.Println(i, titem)
 		sis[i] = *newSeatInfo(titem.Timeinterval, titem.Items[0])
 	}
-	fmt.Println(sis)
 	return sis
 }
 

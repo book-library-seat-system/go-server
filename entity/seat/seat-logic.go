@@ -40,15 +40,16 @@ func isInBookTime(t time.Time, timeinterval *TimeInterval) {
 }
 
 // insertOne 将一个seatinfo插入seatinfo数组，如果数组中有前一个时间段的，则接在后面
-func insertOne(seatinfos []SeatInfo, newitem *SeatInfo) {
+func insertOne(seatinfos []SeatInfo, newitem *SeatInfo) []SeatInfo {
 	for i := 0; i < len(seatinfos); i++ {
 		if seatinfos[i].SeatID == newitem.SeatID &&
+			seatinfos[i].Seatinfo == newitem.Seatinfo &&
 			seatinfos[i].Endtime == newitem.Begintime {
 			seatinfos[i].Endtime = newitem.Endtime
-			return
+			return seatinfos
 		}
 	}
-	seatinfos = append(seatinfos, *newitem)
+	return append(seatinfos, *newitem)
 }
 
 // updateAllAfterSeat 从某一时间段起一直更新f函数为真的信息
@@ -158,7 +159,7 @@ func GetSeatinfoByStudentID(school string, studentid string) []SeatInfo {
 	seatinfos := service.FindBySchoolAndStudentID(school, studentid)
 	mergeseatinfos := []SeatInfo{}
 	for _, seatinfo := range seatinfos {
-		insertOne(mergeseatinfos, &seatinfo)
+		mergeseatinfos = insertOne(mergeseatinfos, &seatinfo)
 	}
 	return mergeseatinfos
 }
