@@ -148,6 +148,9 @@ func bookSeatHandle(formatter *render.Render) http.HandlerFunc {
 		CheckNewErr(err, "203|解析json错误")
 
 		// 进行预约
+		ttt := js.Get("seatID")
+		fmt.Println(ttt.Int())
+		fmt.Println(js.Get("seatID").MustInt())
 		seat.BookSeat(school, seat.TimeInterval{begintime, endtime}, studentid, js.Get("seatID").MustInt())
 		formatter.JSON(w, http.StatusOK, ErrorRtnJson{})
 	}
