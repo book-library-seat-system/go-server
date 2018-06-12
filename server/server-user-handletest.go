@@ -30,7 +30,7 @@ func TesttestGET(t *testing.T) {
 
 	// 发送http get请求
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "http://localhost:8899/v1/test", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "http://localhost:8899/v1/test?openID=123%20123", strings.NewReader(""))
 	CheckErr(err)
 	req.Header.Set("Content-Type", "application/json")
 

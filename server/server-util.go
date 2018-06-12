@@ -8,6 +8,7 @@ Date: 2018年5月14日 星期一 上午10:25
 package server
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -48,6 +49,7 @@ func parseUrl(r *http.Request) map[string]string {
 	// 解析ID
 	rtnmap := make(map[string]string)
 	for k, v := range r.Form {
+		fmt.Println(k, ":", v[0])
 		rtnmap[k] = v[0]
 	}
 	return rtnmap

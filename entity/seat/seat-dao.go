@@ -33,7 +33,7 @@ var service = TItemsAtomicService{}
 func init() {
 	database = mgdb.Mydb.DB("seat")
 	locks = mutexmanager.New()
-	service.Insert(newSTItem("testsunyetsununiversity", 1080))
+	service.Insert(newSTItem("testsunyetsenuniversity", 1080))
 	fmt.Println("Seat database init!")
 }
 
