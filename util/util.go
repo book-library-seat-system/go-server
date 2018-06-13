@@ -89,12 +89,6 @@ func MD5Hash(input string) string {
 	return hex.EncodeToString(md5Ctx.Sum(nil))
 }
 
-// String2Int 字符串转换成int
-func String2Int(str string) int {
-	i, _ := strconv.Atoi(str)
-	return i
-}
-
 // ReadFromIniFile 从配置文件中读取信息并返回
 func ReadFromIniFile(blockname string, rowname string) string {
 	file, err := ini.LoadFile(filepath.Join(GetGOPATH(), "/src/github.com/book-library-seat-system/go-server/config.ini"))
@@ -104,4 +98,24 @@ func ReadFromIniFile(blockname string, rowname string) string {
 		panic(errors.New("202|读取配置文件发生错误"))
 	}
 	return str
+}
+
+// String2Int string转换成int
+func String2Int(str string) int {
+	i, _ := strconv.Atoi(str)
+	return i
+}
+
+// Bool2Int bool转换成int
+func Bool2Int(b bool) int {
+	if b {
+		return 1
+	} else {
+		return 0
+	}
+}
+
+// Int2Bool int转换成bool
+func Int2Bool(i int) bool {
+	return i > 0
 }

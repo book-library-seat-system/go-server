@@ -30,7 +30,7 @@ type StudentRtnJson struct {
 	ErrorRtnJson
 }
 
-// testGET
+// testGET 测试GET
 func testGET(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
@@ -43,6 +43,7 @@ func testGET(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
+// testPOST 测试POST
 func testPOST(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
@@ -56,7 +57,7 @@ func testPOST(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// 创建一个新的用户
+// createStudentHandle 创建一个新的用户
 func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
@@ -69,7 +70,7 @@ func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// 显示用户信息
+// listStudentInfoHandle 显示用户信息
 func listStudentInfoHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)

@@ -116,19 +116,19 @@ Description: 得到某时间段所有座位的信息，数组下标代表位置
 InputParameter:
 	school: 所查询的学校名字
 	timeinterval: 查询的时间戳
-Return: 该时间段的座位预约信息，用bool数组保存，0代表未预约，1代表已预约
+Return: 该时间段的座位预约信息，用int数组保存，0代表未预约，1代表已预约
 *************************************************/
-func GetAllSeatinfo(school string, timeinterval TimeInterval) []bool {
+func GetAllSeatinfo(school string, timeinterval TimeInterval) []int {
 	timeintervals := splitTimeInterval(timeinterval)
 	items := service.FindBySchoolAndTimeInterval(school, timeintervals[0])
-	seatinfo := make([]bool, len(items))
+	seatinfo := make([]int, len(items))
 	for i := 0; i < len(seatinfo); i++ {
-		seatinfo[i] = items[i].Seatinfo != 0
+		seatinfo[i] = items[i].Seatinfo
 	}
 	for _, ti := range timeintervals[1:] {
 		items = service.FindBySchoolAndTimeInterval(school, ti)
 		for i := 0; i < len(seatinfo); i++ {
-			seatinfo[i] = seatinfo[i] && items[i].Seatinfo != 0
+			seatinfo[i] = Bool2Int(Int2Bool(seatinfo[i] * items[i].Seatinfo))
 		}
 	}
 	return seatinfo
