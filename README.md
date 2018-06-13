@@ -1,5 +1,43 @@
 # go-server
 
+> 开发者：胡子昂，黄敏仪，林彬彬
+
+##项目介绍
+
+- 图书馆座位管理系统的后端，用go语言实现。
+- 依赖于mongodb数据库存储信息，因此运行前，需要开启mongodb数据库
+- 通过Restful响应请求，并且进行响应
+- 支持并发操作
+
+## 接口：
+
+- API接口文档: https://librarybookseatsystem.docs.apiary.io/#
+- 错误码文档：https://github.com/book-library-seat-system/document/blob/master/%E5%90%8E%E7%AB%AF%E9%94%99%E8%AF%AF%E7%A0%81.md
+
+##安装说明：
+
+- 有两种安装方式：
+
+1. 当你已经安装了go语言时，可以命令行直接运行：
+
+   ~~~bash
+   $ go get github.com/book-library-seat-system/go-server
+   ~~~
+
+   此命令会帮助你自动安装本项目和本项目的依赖包。
+
+   （PS：其中有一个包被墙了，需要翻墙）
+
+   安装完毕后，可以在$GOPATH/bin中找到可执行程序，运行即可。
+
+   ~~~bash
+   $ $GOPATH/bin/go-server
+   ~~~
+
+2. 切换分支成execute分支：
+
+   
+
 ## v1.0
 
 1. 实现user在数据库层面的增删查改
