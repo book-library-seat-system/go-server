@@ -15,9 +15,9 @@ import (
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 
-	"github.com/book-library-seat-system/go-server/entity/mutexmanager"
 	"github.com/book-library-seat-system/go-server/mgdb"
 	. "github.com/book-library-seat-system/go-server/util"
+	"github.com/book-library-seat-system/go-server/util/mutexmanager"
 )
 
 // seat 使用同一个数据库，但是使用不同的表，每一个表含有一个读写锁

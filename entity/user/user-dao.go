@@ -43,8 +43,8 @@ Return: none
 *************************************************/
 func (*ItemAtomicService) Insert(student *Item) {
 	lock.Lock()
-	defer lock.Unlock()
 	err := collector.Insert(student)
+	lock.Unlock()
 	CheckNewErr(err, "1|数据库学生信息插入出现错误")
 }
 
@@ -57,11 +57,11 @@ Return: none
 *************************************************/
 func (*ItemAtomicService) Update(student *Item) {
 	lock.Lock()
-	defer lock.Unlock()
 	err := collector.Update(
 		bson.M{"_id": student.ID},
 		bson.M{"$set": student},
 	)
+	lock.Unlock()
 	CheckNewErr(err, "2|数据库学生信息更新出现错误")
 }
 
@@ -75,8 +75,8 @@ Return: 查询到的学生结果，包含所有的字段
 func (*ItemAtomicService) FindByID(ID string) *Item {
 	item := &Item{}
 	lock.RLock()
-	defer lock.RUnlock()
 	err := collector.Find(bson.M{"_id": ID}).One(item)
+	lock.RUnlock()
 	CheckNewErr(err, "3|数据库学生信息查找出现错误")
 	return item
 }
@@ -91,8 +91,8 @@ Return: 查询到的学生学校结果
 func (*ItemAtomicService) FindSchoolByID(ID string) string {
 	item := &Item{}
 	lock.RLock()
-	defer lock.RUnlock()
 	err := collector.Find(bson.M{"_id": ID}).Select(bson.M{"school": 1}).One(item)
+	lock.RUnlock()
 	CheckNewErr(err, "3|数据库学生信息查找出现错误")
 	return item.School
 }
@@ -106,7 +106,7 @@ Return: none
 *************************************************/
 func (*ItemAtomicService) DeleteByID(ID string) {
 	lock.Lock()
-	defer lock.Unlock()
 	err := collector.Remove(bson.M{"_id": ID})
+	lock.Unlock()
 	CheckNewErr(err, "4|数据库学生信息删除出现错误")
 }

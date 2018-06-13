@@ -33,6 +33,7 @@ func newItem(ID string, netID string, hashpassword string,
 	return newUserItem
 }
 
+// IsPunished 判断学生是否被惩罚
 func (item *Item) IsPunished() bool {
 	return item.Violation >= 3
 }
