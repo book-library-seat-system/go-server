@@ -8,8 +8,6 @@ Date: 2018年5月4日 星期五 下午1:12
 package server
 
 import (
-	"net/http"
-
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
 	"github.com/unrolled/render"
@@ -20,12 +18,9 @@ func NewServer() *negroni.Negroni {
 	formatter := render.New(render.Options{
 		IndentJSON: true,
 	})
-
 	n := negroni.Classic()
 	mx := mux.NewRouter()
-
 	initRoutes(mx, formatter)
-
 	n.UseHandler(mx)
 	return n
 }
@@ -65,12 +60,4 @@ func initSeatRoute(mx *mux.Router, formatter *render.Render) {
 	mx.HandleFunc("/v1/seat/unbook", unbookSeatHandle(formatter)).Methods("POST")
 	// 签到座位
 	mx.HandleFunc("/v1/seat/signin", signinSeatHandle(formatter)).Methods("POST")
-}
-
-func testHandler(formatter *render.Render) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		vars := mux.Vars(req)
-		id := vars["id"]
-		formatter.JSON(w, http.StatusOK, struct{ Test string }{"Hello " + id})
-	}
 }

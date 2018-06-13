@@ -9,14 +9,12 @@ Date: 2018年5月4日 星期五 下午1:13
 package server
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/book-library-seat-system/go-server/entity/seat"
 
 	"github.com/book-library-seat-system/go-server/entity/user"
-	. "github.com/book-library-seat-system/go-server/util"
 	"github.com/unrolled/render"
 )
 
@@ -32,26 +30,13 @@ type StudentRtnJson struct {
 	ErrorRtnJson
 }
 
-// 返回错误表单
-func errResponse(w http.ResponseWriter, formatter *render.Render) {
-	if err := recover(); err != nil {
-		fmt.Println(err)
-		var rtn ErrorRtnJson
-		rtn.Errorcode, rtn.Errorinformation = HandleError(err)
-		formatter.JSON(w, 500, rtn)
-	}
-}
-
 // testGET
 func testGET(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
-
-		// 解析url参数
-		param := parseUrl(r)
-		if _, ok := param["openID"]; !ok {
-			CheckErr(errors.New("7|用户当前未登陆"))
-		}
+		// 解析参数
+		param := parseReq(r)
+		CheckUserLogin(param)
 
 		// 解析json
 		formatter.JSON(w, http.StatusOK, StudentRtnJson{})
@@ -61,15 +46,10 @@ func testGET(formatter *render.Render) http.HandlerFunc {
 func testPOST(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
-
 		fmt.Println("Inter Post!")
-		// 解析url参数
-		js := parseJSON(r)
-		fmt.Println(*js)
-		_, err := js.Get("openID").String()
-		if err != nil {
-			CheckErr(errors.New("7|用户当前未登陆"))
-		}
+		// 解析参数
+		param := parseReq(r)
+		CheckUserLogin(param)
 
 		// 解析json
 		formatter.JSON(w, http.StatusOK, StudentRtnJson{})
@@ -81,16 +61,9 @@ func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
 		fmt.Println("createStudentHandle!")
-
-		// 解析json数据
-		js := parseJSON(r)
-		fmt.Println(js)
-		user.RegisterStudent(
-			js.Get("openID").MustString(),
-			js.Get("netID").MustString(),
-			js.Get("password").MustString(),
-			js.Get("school").MustString())
-
+		// 解析参数
+		param := parseReq(r)
+		user.RegisterStudent(param["openID"], param["netID"], param["password"], param["school"])
 		// 发回json
 		formatter.JSON(w, http.StatusOK, ErrorRtnJson{})
 	}
@@ -101,15 +74,10 @@ func listStudentInfoHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer errResponse(w, formatter)
 		fmt.Println("listStudentInfoHandle!")
-
-		// 解析url参数
-		param := parseUrl(r)
-		if _, ok := param["openID"]; !ok {
-			CheckErr(errors.New("7|用户当前未登陆"))
-		}
-
+		// 解析参数
+		param := parseReq(r)
+		CheckUserLogin(param)
 		pitem := user.GetStudent(param["openID"])
-
 		// 解析json
 		formatter.JSON(w, http.StatusOK, StudentRtnJson{
 			School:    pitem.School,

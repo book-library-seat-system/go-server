@@ -24,7 +24,6 @@ func init() {
 // addSignoutTrigger 添加签退触发器，每小时的30min生效一次
 func addSignoutTrigger(school string) {
 	timetrigger.New(getToday(time.Now(), 0, 30), time.Hour, func() {
-		// 更改这一小时的座位信息
 		nowhour := getCurrentTimeInterval(time.Now())
 		items := service.FindBySchoolAndTimeInterval(school, nowhour)
 		nexthour := nowhour
@@ -55,7 +54,7 @@ func addSeatUpdateTrigger(school string) {
 	}).Run()
 }
 
-// addTestTrigger
+// addTestTrigger 用于测试
 func addTestTrigger() {
 	timetrigger.New(getToday(time.Now(), 0, 31), time.Minute, func() {
 		fmt.Println("Trigger run:")

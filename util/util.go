@@ -89,7 +89,8 @@ func MD5Hash(input string) string {
 	return hex.EncodeToString(md5Ctx.Sum(nil))
 }
 
-func StringtoInt(str string) int {
+// String2Int 字符串转换成int
+func String2Int(str string) int {
 	i, _ := strconv.Atoi(str)
 	return i
 }
