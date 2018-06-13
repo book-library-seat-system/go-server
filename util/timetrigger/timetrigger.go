@@ -1,6 +1,7 @@
 package timetrigger
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -31,6 +32,12 @@ func (trigger *Trigger) Run() {
 	}
 	// sleep for time
 	trigger.timer = time.AfterFunc(trigger.tm.Sub(time.Now()), func() {
+		defer func() {
+			if err := recover(); err != nil {
+				fmt.Println("Error:", trigger.triggerfunc)
+				fmt.Println("Timer:", trigger.timer)
+			}
+		}()
 		ticker := time.NewTicker(trigger.interval)
 		for {
 			trigger.triggerfunc()
