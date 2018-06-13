@@ -40,7 +40,7 @@ func errResponse(w http.ResponseWriter, formatter *render.Render) {
 
 // CheckUserLogin 判断用户是否登陆，如果没有，抛出错误
 func CheckUserLogin(param map[string]string) {
-	if param["openID"] == "" {
+	if param["openID"] == "" || len(param["openID"]) != 28 {
 		CheckErr(errors.New("7|用户当前未登陆"))
 	}
 }
