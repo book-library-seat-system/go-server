@@ -16,8 +16,8 @@ import (
 )
 
 func init() {
-	addSignoutTrigger("testsunyetsununiversity")
-	addSeatUpdateTrigger("testsunyetsununiversity")
+	addSignoutTrigger("testsunyetsenuniversity")
+	addSeatUpdateTrigger("testsunyetsenuniversity")
 	//addTestTrigger()
 }
 
