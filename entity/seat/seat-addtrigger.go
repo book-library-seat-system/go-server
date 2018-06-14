@@ -44,12 +44,11 @@ func addSignoutTrigger(school string) {
 
 // addSeatUpdateTrigger 添加座位更新触发器，每天更新一次
 func addSeatUpdateTrigger(school string) {
-	timetrigger.New(getToday(time.Now(), 10, 12), 24*time.Hour, func() {
+	timetrigger.New(getToday(time.Now(), 0, 0), 24*time.Hour, func() {
 		fmt.Println("Seat Update Trigger run:", time.Now())
 		// 添加新的座位，删除旧的座位
 		service.Insert(newSTItem(school, 1080))
 		deletetime := getCurrentTimeInterval(time.Now().Add(-1 * 30 * 24 * time.Hour))
-		fmt.Println(deletetime)
 		service.DeleteOldTimeInterval(school, deletetime)
 	}).Run()
 }
