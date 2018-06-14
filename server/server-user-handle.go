@@ -65,7 +65,7 @@ func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 		fmt.Println("createStudentHandle!")
 		// 解析参数
 		param := parseReq(r)
-		if len(param["openId"]) != 28 {
+		if len(param["openID"]) != 28 {
 			CheckErr(errors.New("8|用户的openID不符合格式"))
 		}
 		user.RegisterStudent(param["openID"], param["netID"], param["password"], param["school"])
