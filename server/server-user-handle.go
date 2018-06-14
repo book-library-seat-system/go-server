@@ -9,12 +9,13 @@ Date: 2018年5月4日 星期五 下午1:13
 package server
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/book-library-seat-system/go-server/entity/seat"
-
 	"github.com/book-library-seat-system/go-server/entity/user"
+	. "github.com/book-library-seat-system/go-server/util"
 	"github.com/unrolled/render"
 )
 
@@ -64,7 +65,9 @@ func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 		fmt.Println("createStudentHandle!")
 		// 解析参数
 		param := parseReq(r)
-		fmt.Println(param)
+		if len(param["openId"]) != 28 {
+			CheckErr(errors.New("8|用户的openID不符合格式"))
+		}
 		user.RegisterStudent(param["openID"], param["netID"], param["password"], param["school"])
 		// 发回json
 		formatter.JSON(w, http.StatusOK, ErrorRtnJson{})
