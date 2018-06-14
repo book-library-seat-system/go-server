@@ -54,7 +54,7 @@ func insertOne(seatinfos []SeatInfo, newitem *SeatInfo) []SeatInfo {
 // updateAllAfterSeat 从某一时间段起一直更新f函数为真的信息
 func updateAllAfterSeat(school string, timeinterval TimeInterval, seatid int, f func(*Item) bool) {
 	item := service.FindOneSeat(school, timeinterval, seatid)
-	for ; f(&item); item = service.FindOneSeat(school, timeinterval, seatid) {
+	for ; timeinterval.Valid() && f(&item); item = service.FindOneSeat(school, timeinterval, seatid) {
 		service.UpdateOneSeat(school, timeinterval, item)
 		timeinterval.AddOneHour()
 	}

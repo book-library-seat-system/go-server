@@ -2,6 +2,7 @@ package timetrigger
 
 import (
 	"fmt"
+	"reflect"
 	"time"
 )
 
@@ -34,8 +35,8 @@ func (trigger *Trigger) Run() {
 	trigger.timer = time.AfterFunc(trigger.tm.Sub(time.Now()), func() {
 		defer func() {
 			if err := recover(); err != nil {
-				fmt.Println("Error:", trigger.triggerfunc)
-				fmt.Println("Timer:", trigger.timer)
+				fmt.Println("Error:", err)
+				fmt.Println("Func:", reflect.ValueOf(trigger.triggerfunc))
 			}
 		}()
 		ticker := time.NewTicker(trigger.interval)

@@ -206,7 +206,9 @@ func (*TItemsAtomicService) DeleteBySchool(school string) {
 	locks.WLock(school)
 	err := database.C(school).DropCollection()
 	locks.WUnlock(school)
-	CheckNewErr(err, "104|数据库座位信息删除出现错误")
+	if err.Error() != "not found" {
+		CheckNewErr(err, "104|数据库座位信息删除出现错误")
+	}
 }
 
 /*************************************************
@@ -222,7 +224,9 @@ func (*TItemsAtomicService) DeleteBySchoolAndTimeInterval(school string, timeint
 	locks.WLock(school)
 	err := c.Remove(bson.M{"_id": timeinterval})
 	locks.WUnlock(school)
-	CheckNewErr(err, "104|数据库座位信息删除出现错误")
+	if err.Error() != "not found" {
+		CheckNewErr(err, "104|数据库座位信息删除出现错误")
+	}
 }
 
 /*************************************************
@@ -238,5 +242,7 @@ func (*TItemsAtomicService) DeleteOldTimeInterval(school string, timeinterval Ti
 	locks.WLock(school)
 	err := c.Remove(bson.M{"_id": bson.M{"$lt": timeinterval}})
 	locks.WUnlock(school)
-	CheckNewErr(err, "104|数据库座位信息删除出现错误")
+	if err.Error() != "not found" {
+		CheckNewErr(err, "104|数据库座位信息删除出现错误")
+	}
 }

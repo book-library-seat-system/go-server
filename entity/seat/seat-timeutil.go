@@ -51,11 +51,11 @@ func currentTimeIntervals() []TimeInterval {
 
 	// 生成时间段
 	nowtimeinterval := getCurrentTimeInterval(time.Now())
-	endday := nowtimeinterval.Begintime
+	endtime := nowtimeinterval.Begintime
 	for i := 0; i < days; i++ {
-		endday = endday.Add(24 * time.Hour)
+		endtime = endtime.Add(24 * time.Hour)
 	}
-	nowtimeinterval.Endtime = time.Date(endday.Year(), endday.Month(), endday.Day(), 0, 0, 0, 0, endday.Location())
+	nowtimeinterval.Endtime = time.Date(endtime.Year(), endtime.Month(), endtime.Day(), 0, 0, 0, 0, endtime.Location())
 	return splitTimeInterval(nowtimeinterval)
 }
 
@@ -71,14 +71,14 @@ func Valid(t time.Time) bool {
 
 // AddOneHour 时间相加1小时
 func (t *TimeInterval) AddOneHour() *TimeInterval {
-	return t.Add(time.Hour)
+	t.Begintime = t.Begintime.Add(time.Hour)
+	t.Endtime = t.Endtime.Add(time.Hour)
+	return t
 }
 
-// Add 时间相加
-func (t *TimeInterval) Add(d time.Duration) *TimeInterval {
-	t.Begintime = t.Begintime.Add(d)
-	t.Endtime = t.Endtime.Add(d)
-	return t
+// Add 时间相加（本身不相加）
+func (t *TimeInterval) Add(d time.Duration) TimeInterval {
+	return TimeInterval{t.Begintime.Add(d), t.Endtime.Add(d)}
 }
 
 // Equal TimeInterval相等比较
