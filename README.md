@@ -9,6 +9,10 @@
 - 通过Restful响应请求，并且进行响应
 - 支持并发操作
 
+## 程序架构图
+
+![](photo/后端类关系.png)
+
 ## 接口：
 
 - API接口文档: https://librarybookseatsystem.docs.apiary.io/#
