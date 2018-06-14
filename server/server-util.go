@@ -62,6 +62,7 @@ func parseReq(r *http.Request) map[string]string {
 	} else if r.Method == "POST" {
 		param = parseReqByPost(r)
 	}
+	fmt.Println(param)
 	if param != nil && param["openID"] != "" && param["school"] == "" {
 		param["school"] = user.GetStudentsSchool(param["openID"])
 	}

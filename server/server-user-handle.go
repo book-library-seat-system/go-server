@@ -64,6 +64,7 @@ func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 		fmt.Println("createStudentHandle!")
 		// 解析参数
 		param := parseReq(r)
+		fmt.Println(param)
 		user.RegisterStudent(param["openID"], param["netID"], param["password"], param["school"])
 		// 发回json
 		formatter.JSON(w, http.StatusOK, ErrorRtnJson{})
