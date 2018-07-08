@@ -2,7 +2,7 @@
 
 > 开发者：胡子昂，黄敏仪，林彬彬
 
-##项目介绍
+## 项目介绍
 
 - 图书馆座位管理系统的后端，用go语言实现。
 - 依赖于mongodb数据库存储信息，因此运行前，需要开启mongodb数据库
@@ -18,7 +18,7 @@
 - API接口文档: https://librarybookseatsystem.docs.apiary.io/#
 - 错误码文档：https://github.com/book-library-seat-system/document/blob/master/%E5%90%8E%E7%AB%AF%E9%94%99%E8%AF%AF%E7%A0%81.md
 
-##安装和运行说明：
+## 安装和运行说明：
 
 - 有两种安装方式：
 
