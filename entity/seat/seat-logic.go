@@ -15,8 +15,7 @@ import (
 	. "github.com/book-library-seat-system/go-server/util"
 )
 
-var userItemsFilePath = "src/github.com/book-library-seat-system/go-server/orm/UserItems.json"
-var currentUserFilePath = "src/github.com/book-library-seat-system/go-server/orm/Current.txt"
+/* ---------------- 以下是内部util函数 ----------------- */
 
 // isInSigninTime 判断是否在签到时间，如果不是，抛出错误
 func isInSigninTime(t time.Time) TimeInterval {
@@ -93,6 +92,8 @@ func signoutAllAfterSeat(school string, timeinterval TimeInterval, seatid int, s
 		return false
 	})
 }
+
+/* --------------------- 以下是接口函数 -------------------------- */
 
 /*************************************************
 Function: GetAllTimeInterval

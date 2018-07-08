@@ -31,33 +31,6 @@ type StudentRtnJson struct {
 	ErrorRtnJson
 }
 
-// testGET 测试GET
-func testGET(formatter *render.Render) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		defer errResponse(w, formatter)
-		// 解析参数
-		param := parseReq(r)
-		CheckUserLogin(param)
-
-		// 解析json
-		formatter.JSON(w, http.StatusOK, StudentRtnJson{})
-	}
-}
-
-// testPOST 测试POST
-func testPOST(formatter *render.Render) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		defer errResponse(w, formatter)
-		fmt.Println("Inter Post!")
-		// 解析参数
-		param := parseReq(r)
-		CheckUserLogin(param)
-
-		// 解析json
-		formatter.JSON(w, http.StatusOK, StudentRtnJson{})
-	}
-}
-
 // createStudentHandle 创建一个新的用户
 func createStudentHandle(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

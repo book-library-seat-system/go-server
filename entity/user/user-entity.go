@@ -21,18 +21,6 @@ type Item struct {
 	Violation int `json:"violation,omitempty"`
 }
 
-// newItem 新建一个UserItem，并返回指针
-func newItem(ID string, netID string, hashpassword string,
-	school string) *Item {
-	newUserItem := new(Item)
-	newUserItem.ID = ID
-	newUserItem.NetID = netID
-	newUserItem.Hashpassword = hashpassword
-	newUserItem.School = school
-	newUserItem.Violation = 0
-	return newUserItem
-}
-
 // IsPunished 判断学生是否被惩罚
 func (item *Item) IsPunished() bool {
 	return item.Violation >= 3
